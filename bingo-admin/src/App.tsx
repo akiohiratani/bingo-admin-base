@@ -1,5 +1,6 @@
 // App.tsx
 import React, { useEffect, useState } from "react";
+import "./App.css";
 
 const WS_URL =
   "wss://kkblt3dovh.execute-api.ap-northeast-1.amazonaws.com/AkioHiratani?role=admin";
@@ -17,10 +18,14 @@ const App: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [lastWinIndex, setLastWinIndex] = useState<number | null>(null);
-  const [statusMessage, setStatusMessage] = useState("接続中...");
+  const [statusMessage, setStatusMessage] = useState("接続前");
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
+  const [isReady, setIsReady] = useState(false);
 
   // WebSocket接続
   useEffect(() => {
+    if (!isReady) return;
+
     const ws = new WebSocket(WS_URL);
 
     ws.onopen = () => {
@@ -45,7 +50,7 @@ const App: React.FC = () => {
 
     setSocket(ws);
     return () => ws.close();
-  }, []);
+  }, [isReady]);
 
   // まだ抽選されていない数字をランダムに選択
   const getNextRandomIndex = (): number | null => {
@@ -91,47 +96,39 @@ const App: React.FC = () => {
 
   const remaining = MAX_INDEX - drawnNumbers.length;
 
-  return (
-    <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-      <h1>🎯 ビンゴ開催者画面</h1>
+  const handleWelcomeClose = () => {
+    setIsWelcomeOpen(false);
+    setIsReady(true);
+    setStatusMessage("接続中...");
+  };
 
-      <p>
-        状態：
-        <strong style={{ color: isConnected ? "green" : "red" }}>
-          {isConnected ? "接続中" : "未接続"}
-        </strong>
-      </p>
-      <p>{statusMessage}</p>
+  return (
+    <div className="app">
+      <div className="sr-only" aria-live="polite">
+        {`接続状態: ${isConnected ? "接続中" : "未接続"} / ${statusMessage}. 残り抽選可能数 ${remaining}。最後に配信した番号 ${lastWinIndex ?? "なし"}。`}
+      </div>
 
       <button
+        className="draw-button"
         onClick={handleDraw}
         disabled={!isConnected || remaining === 0}
-        style={{
-          padding: "12px 24px",
-          fontSize: "16px",
-          cursor:
-            !isConnected || remaining === 0 ? "not-allowed" : "pointer",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: 6,
-        }}
       >
-        抽選する（winIndex送信）
+        抽選開始
       </button>
 
-      <div style={{ marginTop: 20 }}>
-        <p>
-          残り抽選可能数：<strong>{remaining}</strong> / {MAX_INDEX}
-        </p>
-        <p>
-          最後に配信した番号：<strong>{lastWinIndex ?? "なし"}</strong>
-        </p>
-        <p>
-          抽選済み：
-          {drawnNumbers.length > 0 ? drawnNumbers.join(", ") : "未抽選"}
-        </p>
-      </div>
+      {isWelcomeOpen && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true">
+          <div className="modal">
+            <h2 className="modal__title">Welcome</h2>
+            <p className="modal__body">
+              抽選を開始する前に接続を準備してください。モーダルを閉じると自動で接続が開始されます。
+            </p>
+            <button className="modal__action" onClick={handleWelcomeClose}>
+              はじめる
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
