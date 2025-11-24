@@ -114,7 +114,7 @@ const App: React.FC = () => {
       setDrawModalState({ isOpen: true, isWaiting: true, winIndex });
       drawDelayTimer.current = window.setTimeout(() => {
         setDrawModalState({ isOpen: true, isWaiting: false, winIndex });
-      }, 5000);
+      }, 10000);
     } catch (err) {
       console.error("送信エラー:", err);
       setStatusMessage("メッセージ送信中にエラーが発生しました");
