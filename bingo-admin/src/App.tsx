@@ -108,13 +108,18 @@ const App: React.FC = () => {
         {`接続状態: ${isConnected ? "接続中" : "未接続"} / ${statusMessage}. 残り抽選可能数 ${remaining}。最後に配信した番号 ${lastWinIndex ?? "なし"}。`}
       </div>
 
-      <button
-        className="draw-button"
-        onClick={handleDraw}
-        disabled={!isConnected || remaining === 0}
-      >
-        抽選開始
-      </button>
+      <div className="draw-panel">
+        <div className="remaining-counter" aria-live="polite">
+          残り {remaining} / {MAX_INDEX}
+        </div>
+        <button
+          className="draw-button"
+          onClick={handleDraw}
+          disabled={!isConnected || remaining === 0}
+        >
+          抽選開始
+        </button>
+      </div>
 
       {isWelcomeOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true">
