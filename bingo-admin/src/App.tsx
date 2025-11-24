@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const WS_URL =
@@ -13,6 +13,12 @@ type RoundStartMessage = {
   winIndex: number;
 };
 
+type DrawModalState = {
+  isOpen: boolean;
+  isWaiting: boolean;
+  winIndex: number | null;
+};
+
 const App: React.FC = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -21,6 +27,12 @@ const App: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState("接続前");
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
   const [isReady, setIsReady] = useState(false);
+  const [drawModalState, setDrawModalState] = useState<DrawModalState>({
+    isOpen: false,
+    isWaiting: false,
+    winIndex: null,
+  });
+  const drawDelayTimer = useRef<number | null>(null);
 
   // WebSocket接続
   useEffect(() => {
@@ -52,6 +64,15 @@ const App: React.FC = () => {
     return () => ws.close();
   }, [isReady]);
 
+  useEffect(
+    () => () => {
+      if (drawDelayTimer.current) {
+        window.clearTimeout(drawDelayTimer.current);
+      }
+    },
+    []
+  );
+
   // まだ抽選されていない数字をランダムに選択
   const getNextRandomIndex = (): number | null => {
     const remaining = Array.from(
@@ -66,6 +87,8 @@ const App: React.FC = () => {
 
   // 抽選ボタン押下時
   const handleDraw = () => {
+    if (drawModalState.isOpen) return;
+
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       setStatusMessage("WebSocket 未接続のため送信できません");
       return;
@@ -88,6 +111,10 @@ const App: React.FC = () => {
       setDrawnNumbers((prev) => [...prev, winIndex]);
       setLastWinIndex(winIndex);
       setStatusMessage(`winIndex=${winIndex} を配信しました`);
+      setDrawModalState({ isOpen: true, isWaiting: true, winIndex });
+      drawDelayTimer.current = window.setTimeout(() => {
+        setDrawModalState({ isOpen: true, isWaiting: false, winIndex });
+      }, 10000);
     } catch (err) {
       console.error("送信エラー:", err);
       setStatusMessage("メッセージ送信中にエラーが発生しました");
@@ -102,6 +129,16 @@ const App: React.FC = () => {
     setStatusMessage("接続中...");
   };
 
+  const handleDrawModalClose = () => {
+    if (drawDelayTimer.current) {
+      window.clearTimeout(drawDelayTimer.current);
+    }
+    setDrawModalState({ isOpen: false, isWaiting: false, winIndex: null });
+  };
+
+  const isDrawButtonDisabled =
+    !isConnected || remaining === 0 || drawModalState.isOpen;
+
   return (
     <div className="app">
       <div className="sr-only" aria-live="polite">
@@ -115,11 +152,41 @@ const App: React.FC = () => {
         <button
           className="draw-button"
           onClick={handleDraw}
-          disabled={!isConnected || remaining === 0}
+          disabled={isDrawButtonDisabled}
         >
           抽選開始
         </button>
       </div>
+
+      {drawModalState.isOpen && (
+        <div
+          className="draw-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={drawModalState.isWaiting ? "抽選中" : "抽選結果"}
+        >
+          <div className="modal draw-modal">
+            {drawModalState.isWaiting ? (
+              <div className="draw-modal__spinner-wrapper">
+                <div className="spinner" aria-hidden />
+                <p className="modal__body draw-modal__message">
+                  抽選結果を送信しています...
+                </p>
+              </div>
+            ) : (
+              <>
+                <h2 className="modal__title">抽選結果</h2>
+                <p className="modal__body">
+                  送信した番号: {drawModalState.winIndex}
+                </p>
+                <button className="modal__action" onClick={handleDrawModalClose}>
+                  閉じる
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {isWelcomeOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true">
