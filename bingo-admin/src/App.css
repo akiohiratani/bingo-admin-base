@@ -135,6 +135,19 @@
   color: #1e293b;
 }
 
+.draw-modal__result {
+  margin: 0 0 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.draw-modal__image {
+  width: min(220px, 60vw);
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
+}
+
 .spinner {
   width: 64px;
   height: 64px;
