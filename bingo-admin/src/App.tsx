@@ -21,6 +21,8 @@ const App: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState("接続前");
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
   const [isReady, setIsReady] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
   const [drawModalState, setDrawModalState] = useState<DrawModalState>({
     isOpen: false,
     isWaiting: false,
@@ -105,6 +107,22 @@ const App: React.FC = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
+  useEffect(() => {
+    if (!isWelcomeOpen && isConnected && !hasDisplayedQrModal) {
+      setIsQrModalOpen(true);
+      setHasDisplayedQrModal(true);
+    }
+  }, [hasDisplayedQrModal, isConnected, isWelcomeOpen]);
+
+  const handleQrModalClose = () => {
+    setIsQrModalOpen(false);
+  };
+
+  const handleQrModalOpen = () => {
+    if (!isConnected) return;
+    setIsQrModalOpen(true);
+  };
+
   return (
     <div className="app">
       <div className="sr-only" aria-live="polite">
@@ -165,6 +183,35 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {isQrModalOpen && (
+        <div
+          className="modal-backdrop qr-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="参加者用QRコード"
+        >
+          <div className="modal qr-modal">
+            <h2 className="modal__title">参加用QRコード</h2>
+            <p className="modal__body">
+              このQRコードから参加者はビンゴゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
+            </p>
+            <figure className="qr-modal__figure">
+              <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=http://localhost:5173/"
+                alt="ビンゴ参加用QRコード"
+                className="qr-modal__image"
+              />
+              <figcaption className="sr-only">リンク先: http://localhost:5173/</figcaption>
+            </figure>
+            <div className="modal__footer">
+              <button className="modal__action modal__action--secondary" onClick={handleQrModalClose}>
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isWelcomeOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true">
           <div className="modal">
@@ -178,6 +225,17 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      <div className="floating-actions" aria-live="polite">
+        <button
+          className="qr-open-button"
+          type="button"
+          onClick={handleQrModalOpen}
+          disabled={!isConnected}
+        >
+          参加用QRコードを表示
+        </button>
+      </div>
     </div>
   );
 };
