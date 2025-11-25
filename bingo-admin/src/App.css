@@ -62,6 +62,7 @@
   display: grid;
   place-items: center;
   padding: 1.5rem;
+  z-index: 15;
 }
 
 .modal {
@@ -224,6 +225,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: min(420px, 92vw);
+  z-index: 5;
 }
 
 .qr-open-button {
