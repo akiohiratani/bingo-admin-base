@@ -139,6 +139,16 @@ const App: React.FC = () => {
   const isDrawButtonDisabled =
     !isConnected || remaining === 0 || drawModalState.isOpen;
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "このページを離れると接続が切断されます。続行しますか？";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
   return (
     <div className="app">
       <div className="sr-only" aria-live="polite">
