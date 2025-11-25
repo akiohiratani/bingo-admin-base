@@ -1,17 +1,12 @@
 // App.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
-
-const WS_URL =
-  "wss://kkblt3dovh.execute-api.ap-northeast-1.amazonaws.com/AkioHiratani?role=admin";
-const SECRET = "20251124AkioHiratani";
-const MAX_INDEX = 18;
-
-type RoundStartMessage = {
-  action: "roundStart";
-  secret: string;
-  winIndex: number;
-};
+import {
+  calculateRemainingCount,
+  MAX_INDEX,
+  pickNextNumber,
+} from "./domain/drawLogic";
+import { sendRoundStart, useAdminSocket } from "./infrastructure/adminSocket";
 
 type DrawModalState = {
   isOpen: boolean;
@@ -20,8 +15,7 @@ type DrawModalState = {
 };
 
 const App: React.FC = () => {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  // UI state management for the admin console
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [lastWinIndex, setLastWinIndex] = useState<number | null>(null);
   const [statusMessage, setStatusMessage] = useState("接続前");
@@ -34,58 +28,26 @@ const App: React.FC = () => {
   });
   const drawDelayTimer = useRef<number | null>(null);
 
-  // WebSocket接続
+  // Memoized callback so socket hook does not recreate the connection unnecessarily.
+  const handleStatusChange = useCallback((message: string) => {
+    setStatusMessage(message);
+  }, []);
+
+  // Infrastructure layer: WebSocket connection lifecycle
+  const { socket, isConnected } = useAdminSocket(
+    isReady,
+    handleStatusChange
+  );
+
   useEffect(() => {
-    if (!isReady) return;
-
-    const ws = new WebSocket(WS_URL);
-
-    ws.onopen = () => {
-      setIsConnected(true);
-      setStatusMessage("WebSocket 接続済み");
-    };
-
-    ws.onclose = () => {
-      setIsConnected(false);
-      setStatusMessage("WebSocket 切断");
-    };
-
-    ws.onerror = (err) => {
-      console.error("WebSocket error:", err);
-      setIsConnected(false);
-      setStatusMessage("WebSocket エラーが発生しました");
-    };
-
-    ws.onmessage = (event) => {
-      console.log("受信:", event.data);
-    };
-
-    setSocket(ws);
-    return () => ws.close();
-  }, [isReady]);
-
-  useEffect(
-    () => () => {
+    return () => {
       if (drawDelayTimer.current) {
         window.clearTimeout(drawDelayTimer.current);
       }
-    },
-    []
-  );
+    };
+  }, []);
 
-  // まだ抽選されていない数字をランダムに選択
-  const getNextRandomIndex = (): number | null => {
-    const remaining = Array.from(
-      { length: MAX_INDEX },
-      (_, i) => i + 1
-    ).filter((n) => !drawnNumbers.includes(n));
-
-    if (remaining.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * remaining.length);
-    return remaining[randomIndex];
-  };
-
-  // 抽選ボタン押下時
+  //抽選ボタン押下時
   const handleDraw = () => {
     if (drawModalState.isOpen) return;
 
@@ -94,20 +56,14 @@ const App: React.FC = () => {
       return;
     }
 
-    const winIndex = getNextRandomIndex();
+    const winIndex = pickNextNumber(drawnNumbers);
     if (winIndex === null) {
       setStatusMessage("すべての数字が抽選済みです");
       return;
     }
 
-    const message: RoundStartMessage = {
-      action: "roundStart",
-      secret: SECRET,
-      winIndex,
-    };
-
     try {
-      socket.send(JSON.stringify(message));
+      sendRoundStart(socket, winIndex);
       setDrawnNumbers((prev) => [...prev, winIndex]);
       setLastWinIndex(winIndex);
       setStatusMessage(`winIndex=${winIndex} を配信しました`);
@@ -121,7 +77,7 @@ const App: React.FC = () => {
     }
   };
 
-  const remaining = MAX_INDEX - drawnNumbers.length;
+  const remaining = calculateRemainingCount(drawnNumbers);
 
   const handleWelcomeClose = () => {
     setIsWelcomeOpen(false);
@@ -152,7 +108,9 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <div className="sr-only" aria-live="polite">
-        {`接続状態: ${isConnected ? "接続中" : "未接続"} / ${statusMessage}. 残り抽選可能数 ${remaining}。最後に配信した番号 ${lastWinIndex ?? "なし"}。`}
+        {`接続状態: ${isConnected ? "接続中" : "未接続"} / ${statusMessage}. 残り抽選可能数 ${remaining}。最後に配信した番号 ${
+          lastWinIndex ?? "なし"
+        }。`}
       </div>
 
       <div className="draw-panel">
