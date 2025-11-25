@@ -186,9 +186,18 @@ const App: React.FC = () => {
             ) : (
               <>
                 <h2 className="modal__title">抽選結果</h2>
-                <p className="modal__body">
-                  送信した番号: {drawModalState.winIndex}
-                </p>
+                <figure className="draw-modal__result">
+                  {drawModalState.winIndex !== null && (
+                    <img
+                      src={`/symbols/${drawModalState.winIndex}.png`}
+                      alt={`送信した番号 ${drawModalState.winIndex}`}
+                      className="draw-modal__image"
+                    />
+                  )}
+                  <figcaption className="sr-only">
+                    送信した番号: {drawModalState.winIndex}
+                  </figcaption>
+                </figure>
                 <button className="modal__action" onClick={handleDrawModalClose}>
                   閉じる
                 </button>
