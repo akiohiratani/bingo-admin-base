@@ -197,7 +197,7 @@ const App: React.FC = () => {
             </p>
             <figure className="qr-modal__figure">
               <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=http://localhost:5173/"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=d3tb65evuppolf.cloudfront.net"
                 alt="ビンゴ参加用QRコード"
                 className="qr-modal__image"
               />
