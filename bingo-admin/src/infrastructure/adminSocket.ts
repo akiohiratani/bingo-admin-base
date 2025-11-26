@@ -2,9 +2,10 @@
 // Handles connection lifecycle and message formatting for external API.
 import { useEffect, useState } from "react";
 
-const WS_URL =
-  "wss://kkblt3dovh.execute-api.ap-northeast-1.amazonaws.com/AkioHiratani?role=admin";
-const SECRET = "20251124AkioHiratani";
+export type AdminSocketConfig = {
+  websocketUrl: string;
+  websocketSecret: string;
+};
 
 export type RoundStartMessage = {
   action: "roundStart";
@@ -13,9 +14,12 @@ export type RoundStartMessage = {
 };
 
 // Build message payload to start a new round.
-export const buildRoundStartMessage = (winIndex: number): RoundStartMessage => ({
+export const buildRoundStartMessage = (
+  winIndex: number,
+  { websocketSecret }: AdminSocketConfig
+): RoundStartMessage => ({
   action: "roundStart",
-  secret: SECRET,
+  secret: websocketSecret,
   winIndex,
 });
 
@@ -27,6 +31,7 @@ export type UseAdminSocketResult = {
 // Manage WebSocket connection lifecycle for the admin client.
 export const useAdminSocket = (
   isReady: boolean,
+  config: AdminSocketConfig,
   onStatusChange: (message: string) => void,
   onMessage?: (event: MessageEvent) => void
 ): UseAdminSocketResult => {
@@ -36,7 +41,7 @@ export const useAdminSocket = (
   useEffect(() => {
     if (!isReady) return;
 
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(config.websocketUrl);
 
     ws.onopen = () => {
       setIsConnected(true);
@@ -63,13 +68,17 @@ export const useAdminSocket = (
 
     setSocket(ws);
     return () => ws.close();
-  }, [isReady, onMessage, onStatusChange]);
+  }, [config.websocketUrl, isReady, onMessage, onStatusChange]);
 
   return { socket, isConnected };
 };
 
 // Send the round start message through an open WebSocket connection.
-export const sendRoundStart = (socket: WebSocket, winIndex: number) => {
-  const payload = buildRoundStartMessage(winIndex);
+export const sendRoundStart = (
+  socket: WebSocket,
+  winIndex: number,
+  config: AdminSocketConfig
+) => {
+  const payload = buildRoundStartMessage(winIndex, config);
   socket.send(JSON.stringify(payload));
 };

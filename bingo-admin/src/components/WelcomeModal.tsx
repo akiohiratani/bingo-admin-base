@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AuthenticationDetails,
   CognitoUser,
   CognitoUserSession,
 } from "amazon-cognito-identity-js";
-import { userPool } from "../domain/cognitoConfig";
+import { createUserPool } from "../domain/cognitoConfig";
+import { useRuntimeConfig } from "../config/runtimeConfig";
 
 export type WelcomeModalProps = {
   isOpen: boolean;
@@ -21,6 +22,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const runtimeConfig = useRuntimeConfig();
+  const userPool = useMemo(
+    () =>
+      createUserPool({
+        clientId: runtimeConfig.cognitoClientId,
+        userPoolId: runtimeConfig.cognitoUserPoolId,
+      }),
+    [runtimeConfig.cognitoClientId, runtimeConfig.cognitoUserPoolId]
+  );
 
   if (!isOpen) return null;
 

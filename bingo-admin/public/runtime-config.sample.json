@@ -1,0 +1,6 @@
+{
+  "websocketUrl": "wss://example.execute-api.ap-northeast-1.amazonaws.com/Prod?role=admin",
+  "websocketSecret": "replace-with-admin-secret",
+  "cognitoUserPoolId": "ap-northeast-1_example",
+  "cognitoClientId": "exampleclientid1234567890"
+}

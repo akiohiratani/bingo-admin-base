@@ -8,6 +8,7 @@ import {
 } from "./domain/drawLogic";
 import { sendRoundStart, useAdminSocket } from "./infrastructure/adminSocket";
 import WelcomeModal from "./components/WelcomeModal";
+import { useRuntimeConfig } from "./config/runtimeConfig";
 
 type DrawModalState = {
   isOpen: boolean;
@@ -30,6 +31,7 @@ const App: React.FC = () => {
     winIndex: null,
   });
   const drawDelayTimer = useRef<number | null>(null);
+  const runtimeConfig = useRuntimeConfig();
 
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
   const handleStatusChange = useCallback((message: string) => {
@@ -39,6 +41,10 @@ const App: React.FC = () => {
   // Infrastructure layer: WebSocket connection lifecycle
   const { socket, isConnected } = useAdminSocket(
     isReady,
+    {
+      websocketSecret: runtimeConfig.websocketSecret,
+      websocketUrl: runtimeConfig.websocketUrl,
+    },
     handleStatusChange
   );
 
@@ -66,7 +72,10 @@ const App: React.FC = () => {
     }
 
     try {
-      sendRoundStart(socket, winIndex);
+      sendRoundStart(socket, winIndex, {
+        websocketSecret: runtimeConfig.websocketSecret,
+        websocketUrl: runtimeConfig.websocketUrl,
+      });
       setDrawnNumbers((prev) => [...prev, winIndex]);
       setLastWinIndex(winIndex);
       setStatusMessage(`winIndex=${winIndex} を配信しました`);
