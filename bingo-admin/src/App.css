@@ -19,7 +19,7 @@
 .remaining-counter {
   font-size: clamp(1.05rem, 3vw, 1.2rem);
   font-weight: 700;
-  color: #e2e8f0;
+  color: #eb8334;
   text-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
