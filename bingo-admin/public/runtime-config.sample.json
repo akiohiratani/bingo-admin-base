@@ -1,0 +1,6 @@
+{
+  "websocketUrl": "wss://kkblt3dovh.execute-api.ap-northeast-1.amazonaws.com/AkioHiratani?role=admin",
+  "websocketSecret": "20251124AkioHiratani",
+  "cognitoUserPoolId": "ap-northeast-1_3KXuF3PFo",
+  "cognitoClientId": "30ibgvm2osej49f2ds43go4143"
+}
