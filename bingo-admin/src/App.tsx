@@ -7,6 +7,7 @@ import {
   pickNextNumber,
 } from "./domain/drawLogic";
 import { sendRoundStart, useAdminSocket } from "./infrastructure/adminSocket";
+import WelcomeModal from "./components/WelcomeModal";
 
 type DrawModalState = {
   isOpen: boolean;
@@ -82,6 +83,10 @@ const App: React.FC = () => {
   const remaining = calculateRemainingCount(drawnNumbers);
 
   const handleWelcomeClose = () => {
+    setIsWelcomeOpen(false);
+  };
+
+  const handleWelcomeConnected = () => {
     setIsWelcomeOpen(false);
     setIsReady(true);
     setStatusMessage("接続中...");
@@ -213,17 +218,11 @@ const App: React.FC = () => {
       )}
 
       {isWelcomeOpen && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
-          <div className="modal">
-            <h2 className="modal__title">Welcome</h2>
-            <p className="modal__body">
-              抽選を開始する前に接続を準備してください。モーダルを閉じると自動で接続が開始されます。
-            </p>
-            <button className="modal__action" onClick={handleWelcomeClose}>
-              はじめる
-            </button>
-          </div>
-        </div>
+        <WelcomeModal
+          isOpen={isWelcomeOpen}
+          onClose={handleWelcomeClose}
+          onConnected={handleWelcomeConnected}
+        />
       )}
 
       <div className="floating-actions" aria-live="polite">
