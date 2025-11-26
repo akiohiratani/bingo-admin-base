@@ -34,7 +34,7 @@ export const RuntimeConfigProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const response = await fetch("/runtime-config.json", { cache: "no-store" });
+        const response = await fetch("/runtime-config.sample.json", { cache: "no-store" });
 
         if (!response.ok) {
           throw new Error(`Failed to load runtime config: ${response.status}`);
