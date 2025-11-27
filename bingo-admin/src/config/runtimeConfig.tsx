@@ -5,6 +5,7 @@ export type RuntimeConfig = {
   websocketSecret: string;
   cognitoUserPoolId: string;
   cognitoClientId: string;
+  memberUrl: string;
 };
 
 const RuntimeConfigContext = createContext<RuntimeConfig | null>(null);
@@ -13,7 +14,8 @@ const isValidRuntimeConfig = (value: Partial<RuntimeConfig>): value is RuntimeCo
   typeof value.websocketUrl === "string" &&
   typeof value.websocketSecret === "string" &&
   typeof value.cognitoUserPoolId === "string" &&
-  typeof value.cognitoClientId === "string";
+  typeof value.cognitoClientId === "string" &&
+  typeof value.memberUrl === "string";
 
 export const useRuntimeConfig = (): RuntimeConfig => {
   const context = useContext(RuntimeConfigContext);
@@ -65,7 +67,7 @@ export const RuntimeConfigProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   if (!config) {
-    return <div className="config-loading">設定ファイルを読み込んでいます...</div>;
+    return <div className="config-loading">Loading...</div>;
   }
 
   return (

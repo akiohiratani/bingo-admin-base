@@ -32,7 +32,7 @@ const App: React.FC = () => {
   });
   const drawDelayTimer = useRef<number | null>(null);
   const runtimeConfig = useRuntimeConfig();
-
+  const memberUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${runtimeConfig.memberUrl}`;
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
   const handleStatusChange = useCallback((message: string) => {
     setStatusMessage(message);
@@ -211,11 +211,11 @@ const App: React.FC = () => {
             </p>
             <figure className="qr-modal__figure">
               <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=d3tb65evuppolf.cloudfront.net"
+                src={memberUrl}
                 alt="ビンゴ参加用QRコード"
                 className="qr-modal__image"
               />
-              <figcaption className="sr-only">リンク先: http://localhost:5173/</figcaption>
+              <figcaption className="sr-only">リンク先: {memberUrl}</figcaption>
             </figure>
             <div className="modal__footer">
               <button className="modal__action modal__action--secondary" onClick={handleQrModalClose}>
