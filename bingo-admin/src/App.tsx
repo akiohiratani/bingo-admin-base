@@ -247,9 +247,6 @@ const App: React.FC = () => {
               />
               <figcaption className="sr-only">リンク先: {memberUrl}</figcaption>
             </figure>
-            <p className="qr-modal__link" aria-live="polite">
-              {memberUrl}
-            </p>
             <div className="modal__footer">
               <button className="modal__action" onClick={handleCopyMemberLink} type="button">
                 リンクをコピー
