@@ -25,14 +25,17 @@ const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [drawModalState, setDrawModalState] = useState<DrawModalState>({
     isOpen: false,
     isWaiting: false,
     winIndex: null,
   });
   const drawDelayTimer = useRef<number | null>(null);
+  const copyMessageTimer = useRef<number | null>(null);
   const runtimeConfig = useRuntimeConfig();
-  const memberUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${runtimeConfig.memberUrl}`;
+  const memberUrl = runtimeConfig.memberUrl;
+  const memberQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${memberUrl}`;
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
   const handleStatusChange = useCallback((message: string) => {
     setStatusMessage(message);
@@ -52,6 +55,10 @@ const App: React.FC = () => {
     return () => {
       if (drawDelayTimer.current) {
         window.clearTimeout(drawDelayTimer.current);
+      }
+
+      if (copyMessageTimer.current) {
+        window.clearTimeout(copyMessageTimer.current);
       }
     };
   }, []);
@@ -129,12 +136,35 @@ const App: React.FC = () => {
   }, [hasDisplayedQrModal, isConnected, isWelcomeOpen]);
 
   const handleQrModalClose = () => {
+    if (copyMessageTimer.current) {
+      window.clearTimeout(copyMessageTimer.current);
+    }
+
+    setCopyMessage(null);
     setIsQrModalOpen(false);
   };
 
   const handleQrModalOpen = () => {
     if (!isConnected) return;
     setIsQrModalOpen(true);
+  };
+
+  const handleCopyMemberLink = async () => {
+    if (copyMessageTimer.current) {
+      window.clearTimeout(copyMessageTimer.current);
+    }
+
+    try {
+      await navigator.clipboard.writeText(memberUrl);
+      setCopyMessage("リンクをコピーしました");
+    } catch (error) {
+      console.error("コピーに失敗しました", error);
+      setCopyMessage("コピーに失敗しました。URLを手動でコピーしてください。");
+    }
+
+    copyMessageTimer.current = window.setTimeout(() => {
+      setCopyMessage(null);
+    }, 3000);
   };
 
   return (
@@ -211,17 +241,28 @@ const App: React.FC = () => {
             </p>
             <figure className="qr-modal__figure">
               <img
-                src={memberUrl}
+                src={memberQrCodeUrl}
                 alt="ビンゴ参加用QRコード"
                 className="qr-modal__image"
               />
               <figcaption className="sr-only">リンク先: {memberUrl}</figcaption>
             </figure>
+            <p className="qr-modal__link" aria-live="polite">
+              {memberUrl}
+            </p>
             <div className="modal__footer">
+              <button className="modal__action" onClick={handleCopyMemberLink} type="button">
+                リンクをコピー
+              </button>
               <button className="modal__action modal__action--secondary" onClick={handleQrModalClose}>
                 閉じる
               </button>
             </div>
+            {copyMessage && (
+              <p className="qr-modal__copy-feedback" role="status" aria-live="polite">
+                {copyMessage}
+              </p>
+            )}
           </div>
         </div>
       )}
