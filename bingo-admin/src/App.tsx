@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [drawModalState, setDrawModalState] = useState<DrawModalState>({
     isOpen: false,
     isWaiting: false,
@@ -33,22 +34,38 @@ const App: React.FC = () => {
   });
   const drawDelayTimer = useRef<number | null>(null);
   const copyMessageTimer = useRef<number | null>(null);
+  const isWelcomeOpenRef = useRef(isWelcomeOpen);
+  const hasDisplayedQrModalRef = useRef(hasDisplayedQrModal);
   const runtimeConfig = useRuntimeConfig();
   const memberUrl = runtimeConfig.memberUrl;
   const memberQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${memberUrl}`;
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
   const handleStatusChange = useCallback((message: string) => {
     setStatusMessage(message);
+    if (message === "WebSocket 接続済み") {
+      setConnectionError(null);
+      if (!isWelcomeOpenRef.current && !hasDisplayedQrModalRef.current) {
+        setIsQrModalOpen(true);
+        setHasDisplayedQrModal(true);
+        hasDisplayedQrModalRef.current = true;
+      }
+    }
+  }, []);
+
+  const handleConnectionError = useCallback((message: string) => {
+    setConnectionError(message);
   }, []);
 
   // Infrastructure layer: WebSocket connection lifecycle
-  const { socket, isConnected } = useAdminSocket(
+  const { socket, isConnected, retryConnection } = useAdminSocket(
     isReady,
     {
       websocketSecret: runtimeConfig.websocketSecret,
       websocketUrl: runtimeConfig.websocketUrl,
     },
-    handleStatusChange
+    handleStatusChange,
+    undefined,
+    handleConnectionError
   );
 
   useEffect(() => {
@@ -115,6 +132,12 @@ const App: React.FC = () => {
     setDrawModalState({ isOpen: false, isWaiting: false, winIndex: null });
   };
 
+  const handleRetryConnection = () => {
+    setConnectionError(null);
+    setStatusMessage("再接続中...");
+    retryConnection();
+  };
+
   const isDrawButtonDisabled =
     !isConnected || remaining === 0 || drawModalState.isOpen;
 
@@ -129,11 +152,12 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isWelcomeOpen && isConnected && !hasDisplayedQrModal) {
-      setIsQrModalOpen(true);
-      setHasDisplayedQrModal(true);
-    }
-  }, [hasDisplayedQrModal, isConnected, isWelcomeOpen]);
+    isWelcomeOpenRef.current = isWelcomeOpen;
+  }, [isWelcomeOpen]);
+
+  useEffect(() => {
+    hasDisplayedQrModalRef.current = hasDisplayedQrModal;
+  }, [hasDisplayedQrModal]);
 
   const handleQrModalClose = () => {
     if (copyMessageTimer.current) {
@@ -270,6 +294,27 @@ const App: React.FC = () => {
           onClose={handleWelcomeClose}
           onConnected={handleWelcomeConnected}
         />
+      )}
+
+      {connectionError && (
+        <div className="modal-backdrop" role="alertdialog" aria-modal="true">
+          <div className="modal">
+            <h2 className="modal__title">接続エラー</h2>
+            <p className="modal__body">{connectionError}</p>
+            <div className="modal__footer">
+              <button className="modal__action" type="button" onClick={handleRetryConnection}>
+                再接続する
+              </button>
+              <button
+                className="modal__action modal__action--secondary"
+                type="button"
+                onClick={() => setConnectionError(null)}
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="floating-actions" aria-live="polite">

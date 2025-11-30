@@ -17,6 +17,7 @@ const isValidRuntimeConfig = (value: Partial<RuntimeConfig>): value is RuntimeCo
   typeof value.cognitoClientId === "string" &&
   typeof value.memberUrl === "string";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useRuntimeConfig = (): RuntimeConfig => {
   const context = useContext(RuntimeConfigContext);
 
