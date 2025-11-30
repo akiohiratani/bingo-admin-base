@@ -26,6 +26,7 @@ export const buildRoundStartMessage = (
 export type UseAdminSocketResult = {
   socket: WebSocket | null;
   isConnected: boolean;
+  retryConnection: () => void;
 };
 
 // Manage WebSocket connection lifecycle for the admin client.
@@ -33,10 +34,19 @@ export const useAdminSocket = (
   isReady: boolean,
   config: AdminSocketConfig,
   onStatusChange: (message: string) => void,
-  onMessage?: (event: MessageEvent) => void
+  onMessage?: (event: MessageEvent) => void,
+  onConnectionError?: (message: string) => void
 ): UseAdminSocketResult => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
+
+  const retryConnection = () => {
+    if (socket) {
+      socket.close();
+    }
+    setConnectionAttempt((prev) => prev + 1);
+  };
 
   useEffect(() => {
     if (!isReady) return;
@@ -48,15 +58,19 @@ export const useAdminSocket = (
       onStatusChange("WebSocket 接続済み");
     };
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setIsConnected(false);
       onStatusChange("WebSocket 切断");
+      if (!event.wasClean) {
+        onConnectionError?.("WebSocket が予期せず切断されました。再接続を実行してください。");
+      }
     };
 
     ws.onerror = (err) => {
       console.error("WebSocket error:", err);
       setIsConnected(false);
       onStatusChange("WebSocket エラーが発生しました");
+      onConnectionError?.("WebSocket 接続に失敗しました。再度接続を試してください。");
     };
 
     ws.onmessage = (event) => {
@@ -66,11 +80,12 @@ export const useAdminSocket = (
       console.log("受信:", event.data);
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSocket(ws);
     return () => ws.close();
-  }, [config.websocketUrl, isReady, onMessage, onStatusChange]);
+  }, [config.websocketUrl, isReady, onConnectionError, onMessage, onStatusChange, connectionAttempt]);
 
-  return { socket, isConnected };
+  return { socket, isConnected, retryConnection };
 };
 
 // Send the round start message through an open WebSocket connection.
