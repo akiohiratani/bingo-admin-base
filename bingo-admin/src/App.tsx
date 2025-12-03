@@ -322,7 +322,6 @@ const App: React.FC = () => {
                       alt={`選ばれた図柄 ${number}`}
                       className="history-item__image"
                     />
-                    <figcaption className="history-item__caption">{number}</figcaption>
                   </figure>
                 ))}
               </div>
