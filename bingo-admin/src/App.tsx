@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [drawModalState, setDrawModalState] = useState<DrawModalState>({
     isOpen: false,
     isWaiting: false,
@@ -173,6 +174,15 @@ const App: React.FC = () => {
     setIsQrModalOpen(true);
   };
 
+  const handleHistoryOpen = () => {
+    if (!isConnected) return;
+    setIsHistoryOpen(true);
+  };
+
+  const handleHistoryClose = () => {
+    setIsHistoryOpen(false);
+  };
+
   const handleCopyMemberLink = async () => {
     if (copyMessageTimer.current) {
       window.clearTimeout(copyMessageTimer.current);
@@ -288,6 +298,34 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {isHistoryOpen && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="抽選履歴">
+          <div className="modal history-modal">
+            <h2 className="modal__title">抽選履歴</h2>
+            <p className="modal__body">これまでに抽選で選ばれた図柄を確認できます。</p>
+            {drawnNumbers.length === 0 ? (
+              <p className="modal__body">まだ抽選結果がありません。</p>
+            ) : (
+              <div className="history-grid" role="list">
+                {drawnNumbers.map((number, index) => (
+                  <figure className="history-item" role="listitem" key={`${number}-${index}`}>
+                    <img
+                      src={`/symbols/${number}.png`}
+                      alt={`選ばれた図柄 ${number}`}
+                      className="history-item__image"
+                    />
+                    <figcaption className="history-item__caption">{number}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
+            <button className="modal__action modal__action--secondary" type="button" onClick={handleHistoryClose}>
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
       {isWelcomeOpen && (
         <WelcomeModal
           isOpen={isWelcomeOpen}
@@ -318,6 +356,14 @@ const App: React.FC = () => {
       )}
 
       <div className="floating-actions" aria-live="polite">
+        <button
+          className="history-open-button"
+          type="button"
+          onClick={handleHistoryOpen}
+          disabled={!isConnected}
+        >
+          履歴確認
+        </button>
         <button
           className="qr-open-button"
           type="button"
