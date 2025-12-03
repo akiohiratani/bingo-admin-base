@@ -74,6 +74,27 @@
   box-shadow: 0 30px 50px rgba(0, 0, 0, 0.2);
 }
 
+.modal__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.1rem;
+}
+
+.modal__close:hover,
+.modal__close:focus-visible {
+  color: #0f172a;
+  outline: 2px solid #cbd5e1;
+  border-radius: 999px;
+}
+
 .modal__title {
   margin: 0 0 0.75rem;
   font-size: clamp(1.4rem, 4vw, 1.8rem);
@@ -344,6 +365,11 @@
 
 .history-modal .modal__body {
   margin-bottom: 1rem;
+}
+
+.history-modal {
+  position: relative;
+  padding-top: clamp(2rem, 5vw, 2.6rem);
 }
 
 .history-grid {

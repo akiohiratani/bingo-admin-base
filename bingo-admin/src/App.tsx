@@ -301,6 +301,14 @@ const App: React.FC = () => {
       {isHistoryOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="抽選履歴">
           <div className="modal history-modal">
+            <button
+              className="modal__close"
+              type="button"
+              aria-label="履歴ダイアログを閉じる"
+              onClick={handleHistoryClose}
+            >
+              ×
+            </button>
             <h2 className="modal__title">抽選履歴</h2>
             <p className="modal__body">これまでに抽選で選ばれた図柄を確認できます。</p>
             {drawnNumbers.length === 0 ? (
@@ -319,9 +327,6 @@ const App: React.FC = () => {
                 ))}
               </div>
             )}
-            <button className="modal__action modal__action--secondary" type="button" onClick={handleHistoryClose}>
-              閉じる
-            </button>
           </div>
         </div>
       )}
