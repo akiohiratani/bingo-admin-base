@@ -393,14 +393,6 @@ const App: React.FC = () => {
       {historyResendModal.isOpen && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="再送信の確認">
           <div className="modal history-resend-modal">
-            <button
-              className="modal__close"
-              type="button"
-              aria-label="再送信確認ダイアログを閉じる"
-              onClick={handleHistoryResendClose}
-            >
-              ×
-            </button>
             {historyResendModal.isWaiting ? (
               <div className="draw-modal__spinner-wrapper">
                 <div className="spinner" aria-hidden />
@@ -408,6 +400,14 @@ const App: React.FC = () => {
               </div>
             ) : (
               <>
+                <button
+                  className="modal__close"
+                  type="button"
+                  aria-label="再送信確認ダイアログを閉じる"
+                  onClick={handleHistoryResendClose}
+                >
+                  ×
+                </button>
                 <h2 className="modal__title">再送信の確認</h2>
                 {historyResendModal.winIndex !== null && (
                   <figure className="history-resend-modal__figure">
