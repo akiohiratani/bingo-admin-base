@@ -33,8 +33,14 @@ const App: React.FC = () => {
     isWaiting: false,
     winIndex: null,
   });
+  const [historyResendModal, setHistoryResendModal] = useState({
+    isOpen: false,
+    isWaiting: false,
+    winIndex: null as number | null,
+  });
   const drawDelayTimer = useRef<number | null>(null);
   const copyMessageTimer = useRef<number | null>(null);
+  const historyResendTimer = useRef<number | null>(null);
   const isWelcomeOpenRef = useRef(isWelcomeOpen);
   const hasDisplayedQrModalRef = useRef(hasDisplayedQrModal);
   const runtimeConfig = useRuntimeConfig();
@@ -77,6 +83,10 @@ const App: React.FC = () => {
 
       if (copyMessageTimer.current) {
         window.clearTimeout(copyMessageTimer.current);
+      }
+
+      if (historyResendTimer.current) {
+        window.clearTimeout(historyResendTimer.current);
       }
     };
   }, []);
@@ -181,6 +191,48 @@ const App: React.FC = () => {
 
   const handleHistoryClose = () => {
     setIsHistoryOpen(false);
+  };
+
+  const handleHistoryItemClick = (winIndex: number) => {
+    setHistoryResendModal({ isOpen: true, isWaiting: false, winIndex });
+  };
+
+  const handleHistoryResendClose = () => {
+    if (historyResendTimer.current) {
+      window.clearTimeout(historyResendTimer.current);
+    }
+    setHistoryResendModal({ isOpen: false, isWaiting: false, winIndex: null });
+  };
+
+  const handleHistoryResendConfirm = () => {
+    if (historyResendTimer.current) {
+      window.clearTimeout(historyResendTimer.current);
+    }
+
+    if (historyResendModal.winIndex === null) return;
+
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      setStatusMessage("WebSocket 未接続のため送信できません");
+      return;
+    }
+
+    const winIndex = historyResendModal.winIndex;
+
+    try {
+      sendRoundStart(socket, winIndex, {
+        websocketSecret: runtimeConfig.websocketSecret,
+        websocketUrl: runtimeConfig.websocketUrl,
+      });
+      setStatusMessage(`winIndex=${winIndex} を再送信しました`);
+      setHistoryResendModal({ isOpen: true, isWaiting: true, winIndex });
+      historyResendTimer.current = window.setTimeout(() => {
+        setHistoryResendModal({ isOpen: false, isWaiting: false, winIndex: null });
+        historyResendTimer.current = null;
+      }, 10000);
+    } catch (err) {
+      console.error("送信エラー:", err);
+      setStatusMessage("メッセージ送信中にエラーが発生しました");
+    }
   };
 
   const handleCopyMemberLink = async () => {
@@ -316,15 +368,70 @@ const App: React.FC = () => {
             ) : (
               <div className="history-grid" role="list">
                 {drawnNumbers.map((number, index) => (
-                  <figure className="history-item" role="listitem" key={`${number}-${index}`}>
+                  <button
+                    className="history-item"
+                    role="listitem"
+                    type="button"
+                    key={`${number}-${index}`}
+                    onClick={() => handleHistoryItemClick(number)}
+                    aria-label={`図柄 ${number} を再送信する`}
+                  >
                     <img
                       src={`/symbols/${number}.png`}
                       alt={`選ばれた図柄 ${number}`}
                       className="history-item__image"
                     />
-                  </figure>
+                    <span className="sr-only">選ばれた図柄 {number}</span>
+                  </button>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {historyResendModal.isOpen && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="再送信の確認">
+          <div className="modal history-resend-modal">
+            <button
+              className="modal__close"
+              type="button"
+              aria-label="再送信確認ダイアログを閉じる"
+              onClick={handleHistoryResendClose}
+            >
+              ×
+            </button>
+            {historyResendModal.isWaiting ? (
+              <div className="draw-modal__spinner-wrapper">
+                <div className="spinner" aria-hidden />
+                <p className="modal__body draw-modal__message">再送信しています...</p>
+              </div>
+            ) : (
+              <>
+                <h2 className="modal__title">再送信の確認</h2>
+                {historyResendModal.winIndex !== null && (
+                  <figure className="history-resend-modal__figure">
+                    <img
+                      src={`/symbols/${historyResendModal.winIndex}.png`}
+                      alt={`再送信する図柄 ${historyResendModal.winIndex}`}
+                      className="history-resend-modal__image"
+                    />
+                  </figure>
+                )}
+                <p className="modal__body">再度送信しますか？</p>
+                <div className="modal__footer">
+                  <button className="modal__action" type="button" onClick={handleHistoryResendConfirm}>
+                    はい
+                  </button>
+                  <button
+                    className="modal__action modal__action--secondary"
+                    type="button"
+                    onClick={handleHistoryResendClose}
+                  >
+                    いいえ
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
