@@ -16,6 +16,34 @@
   gap: 0.75rem;
 }
 
+.win-index-selector {
+  display: grid;
+  gap: 0.35rem;
+  width: min(320px, 90vw);
+}
+
+.win-index-selector__label {
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  text-align: center;
+}
+
+.win-index-selector__control {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.win-index-selector__control:focus-visible {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
+}
+
 .remaining-counter {
   font-size: clamp(1.05rem, 3vw, 1.2rem);
   font-weight: 700;
