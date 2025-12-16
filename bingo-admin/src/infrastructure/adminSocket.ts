@@ -10,16 +10,19 @@ export type AdminSocketConfig = {
 export type RoundStartMessage = {
   action: "roundStart";
   secret: string;
+  roomId: string;
   winIndex: number;
 };
 
 // Build message payload to start a new round.
 export const buildRoundStartMessage = (
   winIndex: number,
+  roomId: string,
   { websocketSecret }: AdminSocketConfig
 ): RoundStartMessage => ({
   action: "roundStart",
   secret: websocketSecret,
+  roomId,
   winIndex,
 });
 
@@ -92,8 +95,9 @@ export const useAdminSocket = (
 export const sendRoundStart = (
   socket: WebSocket,
   winIndex: number,
+  roomId: string,
   config: AdminSocketConfig
 ) => {
-  const payload = buildRoundStartMessage(winIndex, config);
+  const payload = buildRoundStartMessage(winIndex, roomId, config);
   socket.send(JSON.stringify(payload));
 };
