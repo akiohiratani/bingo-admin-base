@@ -14,6 +14,9 @@ export type RoundStartMessage = {
   winIndex: number;
 };
 
+// The value broadcast at the start of each round. Kept in the infrastructure layer.
+export const FIXED_WIN_INDEX = 50;
+
 // Build message payload to start a new round.
 export const buildRoundStartMessage = (
   winIndex: number,
