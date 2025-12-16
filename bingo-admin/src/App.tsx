@@ -214,7 +214,6 @@ const App: React.FC = () => {
           aria-label="参加者用QRコード"
         >
           <div className="modal qr-modal">
-            <h2 className="modal__title">参加用QRコード</h2>
             <p className="modal__body">
               このQRコードから参加者はビンゴゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
             </p>

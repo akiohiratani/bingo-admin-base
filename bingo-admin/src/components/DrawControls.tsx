@@ -30,7 +30,7 @@ const DrawControls: React.FC<DrawControlsProps> = ({
       </button>
 
       <label className="win-index-selector">
-        <span className="win-index-selector__label">配信する winIndex</span>
+        <span className="win-index-selector__label">大当たり確率 (%)</span>
         <select
           className="win-index-selector__control"
           value={winIndex}
