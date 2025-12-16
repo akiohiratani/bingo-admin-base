@@ -11,6 +11,9 @@ import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
 import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
 import DrawControls from "./components/DrawControls";
+import QrModal from "./components/QrModal";
+import ConnectionErrorModal from "./components/ConnectionErrorModal";
+import SendingModal from "./components/SendingModal";
 
 const App: React.FC = () => {
   // UI state management for the admin console
@@ -27,6 +30,7 @@ const App: React.FC = () => {
   const [winIndex, setWinIndex] = useState(DEFAULT_WIN_INDEX);
 
   const copyMessageTimer = useRef<number | null>(null);
+  const sendingCooldownTimer = useRef<number | null>(null);
   const isWelcomeOpenRef = useRef(isWelcomeOpen);
   const hasDisplayedQrModalRef = useRef(hasDisplayedQrModal);
   const runtimeConfig = useRuntimeConfig();
@@ -81,6 +85,9 @@ const App: React.FC = () => {
       if (copyMessageTimer.current) {
         window.clearTimeout(copyMessageTimer.current);
       }
+      if (sendingCooldownTimer.current) {
+        window.clearTimeout(sendingCooldownTimer.current);
+      }
     };
   }, []);
 
@@ -98,8 +105,16 @@ const App: React.FC = () => {
       return;
     }
 
+    if (sendingCooldownTimer.current) {
+      window.clearTimeout(sendingCooldownTimer.current);
+    }
+
     try {
       setIsSending(true);
+      sendingCooldownTimer.current = window.setTimeout(() => {
+        setIsSending(false);
+        sendingCooldownTimer.current = null;
+      }, 5000);
       sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
@@ -109,8 +124,6 @@ const App: React.FC = () => {
     } catch (err) {
       console.error("送信エラー:", err);
       setStatusMessage("メッセージ送信中にエラーが発生しました");
-    } finally {
-      setIsSending(false);
     }
   };
 
@@ -135,6 +148,10 @@ const App: React.FC = () => {
     setConnectionError(null);
     setStatusMessage("再接続中...");
     retryConnection();
+  };
+
+  const handleConnectionErrorClose = () => {
+    setConnectionError(null);
   };
 
   const isDrawButtonDisabled = !isConnected || !roomId || isSending;
@@ -207,39 +224,14 @@ const App: React.FC = () => {
       </div>
 
       {isQrModalOpen && (
-        <div
-          className="modal-backdrop qr-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-label="参加者用QRコード"
-        >
-          <div className="modal qr-modal">
-            <p className="modal__body">
-              このQRコードから参加者はビンゴゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
-            </p>
-            <figure className="qr-modal__figure">
-              <img
-                src={memberQrCodeUrl}
-                alt="ビンゴ参加用QRコード"
-                className="qr-modal__image"
-              />
-              <figcaption className="sr-only">リンク先: {memberUrl}</figcaption>
-            </figure>
-            <div className="modal__footer">
-              <button className="modal__action" onClick={handleCopyMemberLink} type="button">
-                リンクをコピー
-              </button>
-              <button className="modal__action modal__action--secondary" onClick={handleQrModalClose}>
-                閉じる
-              </button>
-            </div>
-            {copyMessage && (
-              <p className="qr-modal__copy-feedback" role="status" aria-live="polite">
-                {copyMessage}
-              </p>
-            )}
-          </div>
-        </div>
+        <QrModal
+          isOpen={isQrModalOpen}
+          memberQrCodeUrl={memberQrCodeUrl}
+          memberUrl={memberUrl}
+          copyMessage={copyMessage}
+          onCopyMemberLink={handleCopyMemberLink}
+          onClose={handleQrModalClose}
+        />
       )}
 
       {isWelcomeOpen && (
@@ -251,24 +243,11 @@ const App: React.FC = () => {
       )}
 
       {connectionError && (
-        <div className="modal-backdrop" role="alertdialog" aria-modal="true">
-          <div className="modal">
-            <h2 className="modal__title">接続エラー</h2>
-            <p className="modal__body">{connectionError}</p>
-            <div className="modal__footer">
-              <button className="modal__action" type="button" onClick={handleRetryConnection}>
-                再接続する
-              </button>
-              <button
-                className="modal__action modal__action--secondary"
-                type="button"
-                onClick={() => setConnectionError(null)}
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConnectionErrorModal
+          message={connectionError}
+          onRetry={handleRetryConnection}
+          onClose={handleConnectionErrorClose}
+        />
       )}
 
       <div className="floating-actions" aria-live="polite">
@@ -281,6 +260,8 @@ const App: React.FC = () => {
           参加用QRコードを表示
         </button>
       </div>
+
+      <SendingModal isOpen={isSending} />
     </div>
   );
 };
