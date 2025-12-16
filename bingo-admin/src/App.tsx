@@ -1,10 +1,16 @@
 // App.tsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import { FIXED_WIN_INDEX, sendRoundStart, useAdminSocket } from "./infrastructure/adminSocket";
+import {
+  DEFAULT_WIN_INDEX,
+  sendRoundStart,
+  setConfiguredWinIndex,
+  useAdminSocket,
+} from "./infrastructure/adminSocket";
 import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
 import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
+import DrawControls from "./components/DrawControls";
 
 const App: React.FC = () => {
   // UI state management for the admin console
@@ -18,6 +24,7 @@ const App: React.FC = () => {
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [winIndex, setWinIndex] = useState(DEFAULT_WIN_INDEX);
 
   const copyMessageTimer = useRef<number | null>(null);
   const isWelcomeOpenRef = useRef(isWelcomeOpen);
@@ -91,8 +98,6 @@ const App: React.FC = () => {
       return;
     }
 
-    const winIndex = FIXED_WIN_INDEX;
-
     try {
       setIsSending(true);
       sendRoundStart(socket, winIndex, roomId, {
@@ -107,6 +112,11 @@ const App: React.FC = () => {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleWinIndexChange = (nextWinIndex: number) => {
+    setWinIndex(nextWinIndex);
+    setConfiguredWinIndex(nextWinIndex);
   };
 
   const handleWelcomeClose = () => {
@@ -188,13 +198,12 @@ const App: React.FC = () => {
       </div>
 
       <div className="draw-panel">
-        <button
-          className="draw-button"
-          onClick={handleDraw}
-          disabled={isDrawButtonDisabled}
-        >
-          抽選開始
-        </button>
+        <DrawControls
+          onDraw={handleDraw}
+          isDrawButtonDisabled={isDrawButtonDisabled}
+          winIndex={winIndex}
+          onWinIndexChange={handleWinIndexChange}
+        />
       </div>
 
       {isQrModalOpen && (
@@ -205,7 +214,6 @@ const App: React.FC = () => {
           aria-label="参加者用QRコード"
         >
           <div className="modal qr-modal">
-            <h2 className="modal__title">参加用QRコード</h2>
             <p className="modal__body">
               このQRコードから参加者はビンゴゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
             </p>
