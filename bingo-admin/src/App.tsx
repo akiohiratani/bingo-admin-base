@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import {
   calculateRemainingCount,
@@ -9,6 +9,7 @@ import {
 import { sendRoundStart, useAdminSocket } from "./infrastructure/adminSocket";
 import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
+import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
 
 type DrawModalState = {
   isOpen: boolean;
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
+  const [roomId, setRoomId] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -44,8 +46,20 @@ const App: React.FC = () => {
   const isWelcomeOpenRef = useRef(isWelcomeOpen);
   const hasDisplayedQrModalRef = useRef(hasDisplayedQrModal);
   const runtimeConfig = useRuntimeConfig();
-  const memberUrl = runtimeConfig.memberUrl;
-  const memberQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${memberUrl}`;
+  const memberUrl = useMemo(() => {
+    if (!roomId) {
+      return runtimeConfig.memberUrl;
+    }
+
+    return buildMemberUrlWithRoomId(runtimeConfig.memberUrl, roomId);
+  }, [roomId, runtimeConfig.memberUrl]);
+  const memberQrCodeUrl = useMemo(
+    () =>
+      `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
+        memberUrl
+      )}`,
+    [memberUrl]
+  );
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
   const handleStatusChange = useCallback((message: string) => {
     setStatusMessage(message);
@@ -100,6 +114,11 @@ const App: React.FC = () => {
       return;
     }
 
+    if (!roomId) {
+      setStatusMessage("ルームIDが生成されていません");
+      return;
+    }
+
     const winIndex = pickNextNumber(drawnNumbers);
     if (winIndex === null) {
       setStatusMessage("すべての数字が抽選済みです");
@@ -107,7 +126,7 @@ const App: React.FC = () => {
     }
 
     try {
-      sendRoundStart(socket, winIndex, {
+      sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
       });
@@ -131,6 +150,8 @@ const App: React.FC = () => {
   };
 
   const handleWelcomeConnected = () => {
+    const newRoomId = generateRoomId();
+    setRoomId(newRoomId);
     setIsWelcomeOpen(false);
     setIsReady(true);
     setStatusMessage("接続中...");
@@ -150,7 +171,7 @@ const App: React.FC = () => {
   };
 
   const isDrawButtonDisabled =
-    !isConnected || remaining === 0 || drawModalState.isOpen;
+    !isConnected || remaining === 0 || drawModalState.isOpen || !roomId;
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -216,10 +237,15 @@ const App: React.FC = () => {
       return;
     }
 
+    if (!roomId) {
+      setStatusMessage("ルームIDが生成されていません");
+      return;
+    }
+
     const winIndex = historyResendModal.winIndex;
 
     try {
-      sendRoundStart(socket, winIndex, {
+      sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
       });
