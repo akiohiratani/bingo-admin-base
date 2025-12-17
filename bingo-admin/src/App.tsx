@@ -48,9 +48,7 @@ const App: React.FC = () => {
       return "";
     }
 
-    return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-      memberUrl
-    )}`;
+    return `https://${memberUrl}`;
   }, [memberUrl]);
 
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
