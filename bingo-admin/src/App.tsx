@@ -7,6 +7,7 @@ import {
   setConfiguredWinIndex,
   useAdminSocket,
 } from "./infrastructure/adminSocket";
+import UserUrlService from "./infrastructure/UserUrlService";
 import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
 import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
@@ -24,6 +25,8 @@ const App: React.FC = () => {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [authenticatedUserId, setAuthenticatedUserId] = useState<string | null>(null);
+  const [memberBaseUrl, setMemberBaseUrl] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -36,17 +39,21 @@ const App: React.FC = () => {
   const runtimeConfig = useRuntimeConfig();
 
   const memberUrl = useMemo(() => {
-    if (!roomId) {
-      return runtimeConfig.memberUrl;
+    if (!memberBaseUrl) {
+      return "";
     }
 
-    return buildMemberUrlWithRoomId(runtimeConfig.memberUrl, roomId);
-  }, [roomId, runtimeConfig.memberUrl]);
+    if (!roomId) {
+      return memberBaseUrl;
+    }
+
+    return buildMemberUrlWithRoomId(memberBaseUrl, roomId);
+  }, [memberBaseUrl, roomId]);
 
   const memberQrCodeUrl = useMemo(
     () =>
       `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-        memberUrl
+        `https://${memberUrl}`
       )}`,
     [memberUrl]
   );
@@ -136,8 +143,9 @@ const App: React.FC = () => {
     setIsWelcomeOpen(false);
   };
 
-  const handleWelcomeConnected = () => {
+  const handleWelcomeConnected = (userId: string) => {
     const newRoomId = generateRoomId();
+    setAuthenticatedUserId(userId);
     setRoomId(newRoomId);
     setIsWelcomeOpen(false);
     setIsReady(true);
@@ -155,6 +163,41 @@ const App: React.FC = () => {
   };
 
   const isDrawButtonDisabled = !isConnected || !roomId || isSending;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchMemberUrl = async () => {
+      if (!authenticatedUserId) {
+        setMemberBaseUrl(null);
+        return;
+      }
+
+      try {
+        const userUrlService = UserUrlService.getInstance();
+        const fetchedMemberUrl = await userUrlService.getUrl(
+          authenticatedUserId,
+          runtimeConfig.memberUrlApiKey,
+          runtimeConfig.memberUrlApi
+        );
+
+        if (isMounted) {
+          setMemberBaseUrl(fetchedMemberUrl);
+        }
+      } catch (error) {
+        console.error("共有用URLの取得に失敗しました", error);
+        if (isMounted) {
+          setMemberBaseUrl(null);
+        }
+      }
+    };
+
+    fetchMemberUrl();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authenticatedUserId, runtimeConfig.memberUrlApi, runtimeConfig.memberUrlApiKey]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -184,13 +227,21 @@ const App: React.FC = () => {
   };
 
   const handleQrModalOpen = () => {
-    if (!isConnected) return;
+    if (!isConnected || !memberUrl) return;
     setIsQrModalOpen(true);
   };
 
   const handleCopyMemberLink = async () => {
     if (copyMessageTimer.current) {
       window.clearTimeout(copyMessageTimer.current);
+    }
+
+    if (!memberUrl) {
+      setCopyMessage("共有用URLの取得中です。しばらくお待ちください。");
+      copyMessageTimer.current = window.setTimeout(() => {
+        setCopyMessage(null);
+      }, 3000);
+      return;
     }
 
     try {
@@ -255,7 +306,7 @@ const App: React.FC = () => {
           className="qr-open-button"
           type="button"
           onClick={handleQrModalOpen}
-          disabled={!isConnected}
+          disabled={!isConnected || !memberUrl}
         >
           参加用QRコードを表示
         </button>
