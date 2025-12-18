@@ -1,4 +1,5 @@
 import React from "react";
+import { QRCodeCanvas } from "qrcode.react";
 
 export type QrModalProps = {
   isOpen: boolean;
@@ -31,10 +32,11 @@ const QrModal: React.FC<QrModalProps> = ({
           このQRコードから参加者はビンゴゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
         </p>
         <figure className="qr-modal__figure">
-          <img
-            src={memberQrCodeUrl}
-            alt="ビンゴ参加用QRコード"
-            className="qr-modal__image"
+          <QRCodeCanvas
+            value={memberQrCodeUrl}
+            size={240}
+            includeMargin={true}
+            level="M"
           />
           <figcaption className="sr-only">リンク先: {memberUrl}</figcaption>
         </figure>

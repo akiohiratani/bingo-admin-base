@@ -37,19 +37,19 @@ const App: React.FC = () => {
 
   const memberUrl = useMemo(() => {
     if (!roomId) {
-      return runtimeConfig.memberUrl;
+      return "";
     }
 
     return buildMemberUrlWithRoomId(runtimeConfig.memberUrl, roomId);
   }, [roomId, runtimeConfig.memberUrl]);
 
-  const memberQrCodeUrl = useMemo(
-    () =>
-      `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-        memberUrl
-      )}`,
-    [memberUrl]
-  );
+  const memberQrCodeUrl = useMemo(() => {
+    if (!memberUrl) {
+      return "";
+    }
+
+    return `https://${memberUrl}`;
+  }, [memberUrl]);
 
   // Memoized callback so socket hook does not recreate the connection unnecessarily.
   const handleStatusChange = useCallback((message: string) => {
@@ -184,11 +184,13 @@ const App: React.FC = () => {
   };
 
   const handleQrModalOpen = () => {
-    if (!isConnected) return;
+    if (!isConnected || !roomId) return;
     setIsQrModalOpen(true);
   };
 
   const handleCopyMemberLink = async () => {
+    if (!memberUrl) return;
+
     if (copyMessageTimer.current) {
       window.clearTimeout(copyMessageTimer.current);
     }
@@ -223,7 +225,7 @@ const App: React.FC = () => {
         />
       </div>
 
-      {isQrModalOpen && (
+      {isQrModalOpen && memberUrl && memberQrCodeUrl && (
         <QrModal
           isOpen={isQrModalOpen}
           memberQrCodeUrl={memberQrCodeUrl}
@@ -255,7 +257,7 @@ const App: React.FC = () => {
           className="qr-open-button"
           type="button"
           onClick={handleQrModalOpen}
-          disabled={!isConnected}
+          disabled={!isConnected || !roomId}
         >
           参加用QRコードを表示
         </button>
