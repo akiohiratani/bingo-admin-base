@@ -14,6 +14,7 @@ import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
 import DrawControls from "./components/DrawControls";
 import QrModal from "./components/QrModal";
 import ConnectionErrorModal from "./components/ConnectionErrorModal";
+import MemberUrlErrorModal from "./components/MemberUrlErrorModal";
 import SendingModal from "./components/SendingModal";
 
 const App: React.FC = () => {
@@ -31,11 +32,15 @@ const App: React.FC = () => {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [winIndex, setWinIndex] = useState(DEFAULT_WIN_INDEX);
+  const [memberUrlErrorMessage, setMemberUrlErrorMessage] = useState<string | null>(
+    null
+  );
 
   const copyMessageTimer = useRef<number | null>(null);
   const sendingCooldownTimer = useRef<number | null>(null);
   const isWelcomeOpenRef = useRef(isWelcomeOpen);
   const hasDisplayedQrModalRef = useRef(hasDisplayedQrModal);
+  const isComponentMounted = useRef(true);
   const runtimeConfig = useRuntimeConfig();
 
   const memberUrl = useMemo(() => {
@@ -95,6 +100,8 @@ const App: React.FC = () => {
       if (sendingCooldownTimer.current) {
         window.clearTimeout(sendingCooldownTimer.current);
       }
+
+      isComponentMounted.current = false;
     };
   }, []);
 
@@ -162,42 +169,55 @@ const App: React.FC = () => {
     setConnectionError(null);
   };
 
+  const handleRetryFetchMemberUrl = () => {
+    fetchMemberUrl();
+  };
+
+  const handleMemberUrlErrorClose = () => {
+    setMemberUrlErrorMessage(null);
+  };
+
   const isDrawButtonDisabled = !isConnected || !roomId || isSending;
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchMemberUrl = async () => {
-      if (!authenticatedUserId) {
+  const fetchMemberUrl = useCallback(async () => {
+    if (!authenticatedUserId) {
+      if (isComponentMounted.current) {
         setMemberBaseUrl(null);
-        return;
+        setMemberUrlErrorMessage(null);
       }
+      return;
+    }
 
-      try {
-        const userUrlService = UserUrlService.getInstance();
-        const fetchedMemberUrl = await userUrlService.getUrl(
-          authenticatedUserId,
-          runtimeConfig.memberUrlApiKey,
-          runtimeConfig.memberUrlApi
+    try {
+      const userUrlService = UserUrlService.getInstance();
+      const fetchedMemberUrl = await userUrlService.getUrl(
+        authenticatedUserId,
+        runtimeConfig.memberUrlApiKey,
+        runtimeConfig.memberUrlApi
+      );
+
+      if (isComponentMounted.current) {
+        setMemberBaseUrl(fetchedMemberUrl);
+        setMemberUrlErrorMessage(null);
+      }
+    } catch (error) {
+      console.error("共有用URLの取得に失敗しました", error);
+      if (isComponentMounted.current) {
+        setMemberBaseUrl(null);
+        setMemberUrlErrorMessage(
+          "通信が混雑しているため、URL の生成に失敗しました。\nお手数ですが、もう一度お試しください。"
         );
-
-        if (isMounted) {
-          setMemberBaseUrl(fetchedMemberUrl);
-        }
-      } catch (error) {
-        console.error("共有用URLの取得に失敗しました", error);
-        if (isMounted) {
-          setMemberBaseUrl(null);
-        }
       }
-    };
+    }
+  }, [
+    authenticatedUserId,
+    runtimeConfig.memberUrlApi,
+    runtimeConfig.memberUrlApiKey,
+  ]);
 
+  useEffect(() => {
     fetchMemberUrl();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [authenticatedUserId, runtimeConfig.memberUrlApi, runtimeConfig.memberUrlApiKey]);
+  }, [fetchMemberUrl]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -298,6 +318,14 @@ const App: React.FC = () => {
           message={connectionError}
           onRetry={handleRetryConnection}
           onClose={handleConnectionErrorClose}
+        />
+      )}
+
+      {memberUrlErrorMessage && (
+        <MemberUrlErrorModal
+          message={memberUrlErrorMessage}
+          onRetry={handleRetryFetchMemberUrl}
+          onClose={handleMemberUrlErrorClose}
         />
       )}
 
