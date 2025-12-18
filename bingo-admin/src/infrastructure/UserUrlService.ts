@@ -43,7 +43,7 @@ class UserUrlService {
 
     // API リクエスト
     const response = await fetch(
-      `${url}/users/${userId}`,
+      `/api/${userId}`,
       {
         method: "GET",
         headers: {

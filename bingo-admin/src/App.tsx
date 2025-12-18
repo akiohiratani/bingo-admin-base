@@ -53,7 +53,7 @@ const App: React.FC = () => {
   const memberQrCodeUrl = useMemo(
     () =>
       `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-        memberUrl
+        `https://${memberUrl}`
       )}`,
     [memberUrl]
   );
