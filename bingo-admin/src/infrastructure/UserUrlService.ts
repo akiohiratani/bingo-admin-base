@@ -41,8 +41,8 @@ class UserUrlService {
       return this.cachedUrl;
     }
 
-    const endPoint = `/api/${userId}`;
-    // const endPoint = `url/${userId}`;
+    // const endPoint = `/api/${userId}`;
+    const endPoint = `${url}/${userId}`;
 
     // API リクエスト
     const response = await fetch(
