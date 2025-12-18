@@ -6,6 +6,8 @@ export type RuntimeConfig = {
   cognitoUserPoolId: string;
   cognitoClientId: string;
   memberUrl: string;
+  memberUrlApi: string;
+  memberUrlApiKey: string;
 };
 
 const RuntimeConfigContext = createContext<RuntimeConfig | null>(null);
@@ -15,7 +17,9 @@ const isValidRuntimeConfig = (value: Partial<RuntimeConfig>): value is RuntimeCo
   typeof value.websocketSecret === "string" &&
   typeof value.cognitoUserPoolId === "string" &&
   typeof value.cognitoClientId === "string" &&
-  typeof value.memberUrl === "string";
+  typeof value.memberUrl === "string" &&
+  typeof value.memberUrlApi === "string" &&
+  typeof value.memberUrlApiKey === "string";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useRuntimeConfig = (): RuntimeConfig => {

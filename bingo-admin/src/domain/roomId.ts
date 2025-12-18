@@ -1,5 +1,5 @@
 const ROOM_ID_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const ROOM_ID_LENGTH = 15;
+const ROOM_ID_LENGTH = 25;
 
 const getCrypto = () => {
   if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
