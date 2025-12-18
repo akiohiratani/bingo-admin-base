@@ -10,7 +10,7 @@ import { useRuntimeConfig } from "../config/runtimeConfig";
 export type WelcomeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onConnected: () => void;
+  onConnected: (userId: string) => void;
 };
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({
@@ -61,7 +61,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
         localStorage.setItem("idToken", idToken);
         setIsLoading(false);
         onClose();
-        onConnected();
+        onConnected(userId.trim());
       },
       onFailure: () => {
         setError("ID またはパスワードが正しくありません。");
