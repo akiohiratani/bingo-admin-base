@@ -30,42 +30,16 @@ class UserUrlService {
   }
 
   /**
-   * userId に紐づく URL を取得する
-   *
-   * ・cachedUrl が存在する場合 → それを返す
-   * ・存在しない場合 → API を叩いて取得し、キャッシュして返す
+   * userId を使用せず、暫定的に固定 URL を返す
    */
-  public async getUrl(userId: string, key: string, url: string): Promise<string> {
-    // すでに取得済みなら API を叩かず返す
+  public async getUrl(): Promise<string> {
     if (this.cachedUrl) {
       return this.cachedUrl;
     }
 
-    // const endPoint = `/api/${userId}`;
-    const endPoint = `${url}/${userId}`;
+    this.cachedUrl = "smoke.net";
 
-    // API リクエスト
-    const response = await fetch(
-      endPoint,
-      {
-        method: "GET",
-        headers: {
-          "x-api-key": key,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch URL: ${response.status}`);
-    }
-
-    const data: { userId: string; url: string } = await response.json();
-
-    // フィールドにキャッシュ
-    this.cachedUrl = data.url;
-
-    return data.url;
+    return this.cachedUrl;
   }
 
   /**

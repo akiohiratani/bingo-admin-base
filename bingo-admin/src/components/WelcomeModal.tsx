@@ -1,122 +1,25 @@
-import React, { useMemo, useState } from "react";
-import {
-  AuthenticationDetails,
-  CognitoUser,
-  CognitoUserSession,
-} from "amazon-cognito-identity-js";
-import { createUserPool } from "../domain/cognitoConfig";
-import { useRuntimeConfig } from "../config/runtimeConfig";
+import React from "react";
 
 export type WelcomeModalProps = {
   isOpen: boolean;
-  onClose: () => void;
-  onConnected: (userId: string) => void;
+  onConnect: () => void;
 };
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({
   isOpen,
-  onClose,
-  onConnected,
+  onConnect,
 }) => {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const runtimeConfig = useRuntimeConfig();
-  const userPool = useMemo(
-    () =>
-      createUserPool({
-        clientId: runtimeConfig.cognitoClientId,
-        userPoolId: runtimeConfig.cognitoUserPoolId,
-      }),
-    [runtimeConfig.cognitoClientId, runtimeConfig.cognitoUserPoolId]
-  );
-
   if (!isOpen) return null;
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-
-    if (!userId || !password) {
-      setError("ID またはパスワードが正しくありません。");
-      return;
-    }
-
-    setIsLoading(true);
-
-    const authenticationDetails = new AuthenticationDetails({
-      Username: userId.trim(),
-      Password: password,
-    });
-
-    const cognitoUser = new CognitoUser({
-      Username: userId.trim(),
-      Pool: userPool,
-    });
-
-    cognitoUser.authenticateUser(authenticationDetails, {
-      onSuccess: (result: CognitoUserSession) => {
-        const idToken = result.getIdToken().getJwtToken();
-        localStorage.setItem("idToken", idToken);
-        setIsLoading(false);
-        onClose();
-        onConnected(userId.trim());
-      },
-      onFailure: () => {
-        setError("ID またはパスワードが正しくありません。");
-        setIsLoading(false);
-      },
-      newPasswordRequired: () => {
-        setError("ID またはパスワードが正しくありません。");
-        setIsLoading(false);
-      },
-    });
-  };
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="modal">
         <h2 className="modal__title">Welcome</h2>
-        <p className="modal__body">
-          抽選を開始する前に接続を準備してください。ログイン後に自動で接続が開始されます。
-        </p>
+        <p className="modal__body">接続を開始するにはタップしてください。</p>
 
-        <form className="modal__form" onSubmit={handleSubmit}>
-          <label className="modal__field">
-            <span className="modal__label">ユーザーID</span>
-            <input
-              type="text"
-              className="modal__input"
-              value={userId}
-              onChange={(event) => setUserId(event.target.value)}
-              autoComplete="username"
-              required
-            />
-          </label>
-
-          <label className="modal__field">
-            <span className="modal__label">パスワード</span>
-            <input
-              type="password"
-              className="modal__input"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </label>
-
-          {error && (
-            <p className="modal__error" role="alert">
-              {error}
-            </p>
-          )}
-
-          <button className="modal__action" type="submit" disabled={isLoading}>
-            {isLoading ? "ログイン中..." : "ログイン"}
-          </button>
-        </form>
+        <button className="modal__action" type="button" onClick={onConnect}>
+          接続を開始
+        </button>
       </div>
     </div>
   );

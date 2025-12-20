@@ -25,7 +25,6 @@ const App: React.FC = () => {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [authenticatedUserId, setAuthenticatedUserId] = useState<string | null>(null);
   const [memberBaseUrl, setMemberBaseUrl] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -139,13 +138,8 @@ const App: React.FC = () => {
     setConfiguredWinIndex(nextWinIndex);
   };
 
-  const handleWelcomeClose = () => {
-    setIsWelcomeOpen(false);
-  };
-
-  const handleWelcomeConnected = (userId: string) => {
+  const handleWelcomeConnect = () => {
     const newRoomId = generateRoomId();
-    setAuthenticatedUserId(userId);
     setRoomId(newRoomId);
     setIsWelcomeOpen(false);
     setIsReady(true);
@@ -168,18 +162,9 @@ const App: React.FC = () => {
     let isMounted = true;
 
     const fetchMemberUrl = async () => {
-      if (!authenticatedUserId) {
-        setMemberBaseUrl(null);
-        return;
-      }
-
       try {
         const userUrlService = UserUrlService.getInstance();
-        const fetchedMemberUrl = await userUrlService.getUrl(
-          authenticatedUserId,
-          runtimeConfig.memberUrlApiKey,
-          runtimeConfig.memberUrlApi
-        );
+        const fetchedMemberUrl = await userUrlService.getUrl();
 
         if (isMounted) {
           setMemberBaseUrl(fetchedMemberUrl);
@@ -192,12 +177,14 @@ const App: React.FC = () => {
       }
     };
 
-    fetchMemberUrl();
+    if (isReady) {
+      fetchMemberUrl();
+    }
 
     return () => {
       isMounted = false;
     };
-  }, [authenticatedUserId, runtimeConfig.memberUrlApi, runtimeConfig.memberUrlApiKey]);
+  }, [isReady]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -288,8 +275,7 @@ const App: React.FC = () => {
       {isWelcomeOpen && (
         <WelcomeModal
           isOpen={isWelcomeOpen}
-          onClose={handleWelcomeClose}
-          onConnected={handleWelcomeConnected}
+          onConnect={handleWelcomeConnect}
         />
       )}
 
