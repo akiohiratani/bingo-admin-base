@@ -7,7 +7,6 @@ import {
   setConfiguredWinIndex,
   useAdminSocket,
 } from "./infrastructure/adminSocket";
-import UserUrlService from "./infrastructure/UserUrlService";
 import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
 import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
@@ -25,7 +24,6 @@ const App: React.FC = () => {
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [hasDisplayedQrModal, setHasDisplayedQrModal] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [authenticatedUserId, setAuthenticatedUserId] = useState<string | null>(null);
   const [memberBaseUrl, setMemberBaseUrl] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -121,7 +119,7 @@ const App: React.FC = () => {
       sendingCooldownTimer.current = window.setTimeout(() => {
         setIsSending(false);
         sendingCooldownTimer.current = null;
-      }, 10000);
+      }, 15000);
       sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
@@ -139,13 +137,8 @@ const App: React.FC = () => {
     setConfiguredWinIndex(nextWinIndex);
   };
 
-  const handleWelcomeClose = () => {
-    setIsWelcomeOpen(false);
-  };
-
-  const handleWelcomeConnected = (userId: string) => {
+  const handleWelcomeConnect = () => {
     const newRoomId = generateRoomId();
-    setAuthenticatedUserId(userId);
     setRoomId(newRoomId);
     setIsWelcomeOpen(false);
     setIsReady(true);
@@ -167,19 +160,9 @@ const App: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchMemberUrl = async () => {
-      if (!authenticatedUserId) {
-        setMemberBaseUrl(null);
-        return;
-      }
-
+    const fetchMemberUrl = () => {
       try {
-        const userUrlService = UserUrlService.getInstance();
-        const fetchedMemberUrl = await userUrlService.getUrl(
-          authenticatedUserId,
-          runtimeConfig.memberUrlApiKey,
-          runtimeConfig.memberUrlApi
-        );
+        const fetchedMemberUrl = runtimeConfig.memberUrl;
 
         if (isMounted) {
           setMemberBaseUrl(fetchedMemberUrl);
@@ -192,12 +175,14 @@ const App: React.FC = () => {
       }
     };
 
-    fetchMemberUrl();
+    if (isReady) {
+      fetchMemberUrl();
+    }
 
     return () => {
       isMounted = false;
     };
-  }, [authenticatedUserId, runtimeConfig.memberUrlApi, runtimeConfig.memberUrlApiKey]);
+  }, [isReady]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -288,8 +273,7 @@ const App: React.FC = () => {
       {isWelcomeOpen && (
         <WelcomeModal
           isOpen={isWelcomeOpen}
-          onClose={handleWelcomeClose}
-          onConnected={handleWelcomeConnected}
+          onConnect={handleWelcomeConnect}
         />
       )}
 
