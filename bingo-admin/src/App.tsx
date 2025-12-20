@@ -4,7 +4,6 @@ import "./App.css";
 import {
   DEFAULT_WIN_INDEX,
   sendRoundStart,
-  setConfiguredWinIndex,
   useAdminSocket,
 } from "./infrastructure/adminSocket";
 import WelcomeModal from "./components/WelcomeModal";
@@ -28,7 +27,7 @@ const App: React.FC = () => {
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
-  const [winIndex, setWinIndex] = useState(DEFAULT_WIN_INDEX);
+  const winIndex = DEFAULT_WIN_INDEX;
 
   const copyMessageTimer = useRef<number | null>(null);
   const sendingCooldownTimer = useRef<number | null>(null);
@@ -132,11 +131,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleWinIndexChange = (nextWinIndex: number) => {
-    setWinIndex(nextWinIndex);
-    setConfiguredWinIndex(nextWinIndex);
-  };
-
   const handleWelcomeConnect = () => {
     const newRoomId = generateRoomId();
     setRoomId(newRoomId);
@@ -182,7 +176,7 @@ const App: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [isReady]);
+  }, [isReady, runtimeConfig.memberUrl]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -255,7 +249,6 @@ const App: React.FC = () => {
           onDraw={handleDraw}
           isDrawButtonDisabled={isDrawButtonDisabled}
           winIndex={winIndex}
-          onWinIndexChange={handleWinIndexChange}
         />
       </div>
 
