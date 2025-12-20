@@ -7,7 +7,6 @@ import {
   setConfiguredWinIndex,
   useAdminSocket,
 } from "./infrastructure/adminSocket";
-import UserUrlService from "./infrastructure/UserUrlService";
 import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
 import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
@@ -120,7 +119,7 @@ const App: React.FC = () => {
       sendingCooldownTimer.current = window.setTimeout(() => {
         setIsSending(false);
         sendingCooldownTimer.current = null;
-      }, 10000);
+      }, 15000);
       sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
@@ -161,10 +160,9 @@ const App: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchMemberUrl = async () => {
+    const fetchMemberUrl = () => {
       try {
-        const userUrlService = UserUrlService.getInstance();
-        const fetchedMemberUrl = await userUrlService.getUrl();
+        const fetchedMemberUrl = runtimeConfig.memberUrl;
 
         if (isMounted) {
           setMemberBaseUrl(fetchedMemberUrl);
