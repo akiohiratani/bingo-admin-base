@@ -20,6 +20,7 @@
   display: grid;
   gap: 0.35rem;
   width: min(320px, 90vw);
+  position: relative;
 }
 
 .win-index-selector__label {
@@ -40,6 +41,21 @@
   background-color: #ffffff;
   color: #0f172a;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.win-index-selector__tooltip {
+  position: absolute;
+  inset: auto 0 -2.4rem 0;
+  margin: auto;
+  width: max-content;
+  max-width: 90%;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #f8fafc;
+  font-size: 0.95rem;
+  text-align: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
 .remaining-counter {
