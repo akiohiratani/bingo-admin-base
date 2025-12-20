@@ -15,14 +15,7 @@ export type RoundStartMessage = {
 };
 
 // The default value broadcast at the start of each round. Kept in the infrastructure layer.
-export const DEFAULT_WIN_INDEX = 20;
-let configuredWinIndex = DEFAULT_WIN_INDEX;
-
-export const setConfiguredWinIndex = (value: number) => {
-  configuredWinIndex = value;
-};
-
-export const getConfiguredWinIndex = () => configuredWinIndex;
+export const DEFAULT_WIN_INDEX = 10;
 
 // Build message payload to start a new round.
 export const buildRoundStartMessage = (

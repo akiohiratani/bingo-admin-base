@@ -29,20 +29,17 @@
   text-align: center;
 }
 
-.win-index-selector__control {
+.win-index-selector__value {
+  display: block;
   width: 100%;
   padding: 0.6rem 0.75rem;
   font-size: 2.5rem;
+  text-align: center;
   border-radius: 10px;
   border: 1px solid #cbd5e1;
   background-color: #ffffff;
   color: #0f172a;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-}
-
-.win-index-selector__control:focus-visible {
-  outline: 2px solid #f97316;
-  outline-offset: 2px;
 }
 
 .remaining-counter {
