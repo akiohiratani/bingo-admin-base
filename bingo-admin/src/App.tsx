@@ -106,7 +106,8 @@ const App: React.FC = () => {
     if (isSending) return;
 
     if (hasReachedLimit) {
-      setStatusMessage("制限に達しました。ルームを作り直してください。");
+      setIsUpdateModalOpen(true);
+      setStatusMessage("制限に達しました。アップデートをご確認ください。");
       return;
     }
 
@@ -222,10 +223,6 @@ const App: React.FC = () => {
     setIsQrModalOpen(true);
   };
 
-  const handleUpdateModalOpen = () => {
-    setIsUpdateModalOpen(true);
-  };
-
   const handleUpdateModalClose = () => {
     setIsUpdateModalOpen(false);
   };
@@ -302,7 +299,6 @@ const App: React.FC = () => {
 
       <FloatingActions
         onOpenQr={handleQrModalOpen}
-        onOpenUpdate={handleUpdateModalOpen}
         isQrButtonDisabled={!isConnected || !memberUrl}
       />
 
