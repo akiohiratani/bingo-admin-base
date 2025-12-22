@@ -17,7 +17,7 @@
 }
 
 .draw-counter {
-  font-size: clamp(1.1rem, 3vw, 1.3rem);
+  font-size: clamp(0.75rem, 0.3vw, 1.5rem);
   font-weight: 800;
   color: #0b1223;
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);

@@ -48,7 +48,7 @@ const DrawControls: React.FC<DrawControlsProps> = ({
       </button>
 
       <div className="draw-counter" aria-live="polite">
-        {drawCount}/{drawLimit}
+        今日の無料：あと{drawCount}/{drawLimit}回
       </div>
 
       <label
