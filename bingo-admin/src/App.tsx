@@ -6,6 +6,7 @@ import {
   sendRoundStart,
   useAdminSocket,
 } from "./infrastructure/adminSocket";
+import { useDrawCounter } from "./infrastructure/drawCounter";
 import WelcomeModal from "./components/WelcomeModal";
 import { useRuntimeConfig } from "./config/runtimeConfig";
 import { buildMemberUrlWithRoomId, generateRoomId } from "./domain/roomId";
@@ -28,6 +29,8 @@ const App: React.FC = () => {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const winIndex = DEFAULT_WIN_INDEX;
+  const { drawCount, drawLimit, hasReachedLimit, incrementDrawCount } =
+    useDrawCounter();
 
   const copyMessageTimer = useRef<number | null>(null);
   const sendingCooldownTimer = useRef<number | null>(null);
@@ -99,6 +102,11 @@ const App: React.FC = () => {
   const handleDraw = () => {
     if (isSending) return;
 
+    if (hasReachedLimit) {
+      setStatusMessage("制限に達しました。ルームを作り直してください。");
+      return;
+    }
+
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       setStatusMessage("WebSocket 未接続のため送信できません");
       return;
@@ -118,11 +126,12 @@ const App: React.FC = () => {
       sendingCooldownTimer.current = window.setTimeout(() => {
         setIsSending(false);
         sendingCooldownTimer.current = null;
-      }, 15000);
+      }, 1500);
       sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
       });
+      incrementDrawCount();
       setLastWinIndex(winIndex);
       setStatusMessage(`winIndex=${winIndex} を配信しました`);
     } catch (err) {
@@ -249,6 +258,8 @@ const App: React.FC = () => {
           onDraw={handleDraw}
           isDrawButtonDisabled={isDrawButtonDisabled}
           winIndex={winIndex}
+          drawCount={drawCount}
+          drawLimit={drawLimit}
         />
       </div>
 
