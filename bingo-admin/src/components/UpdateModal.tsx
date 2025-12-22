@@ -23,25 +23,16 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateUrl })
           </p>
           <div className="modal__card">
             <p className="modal__subtitle">でも――</p>
-            <p className="modal__highlight">友達の写真が、そのまま“罰ゲーム”になる。</p>
+            <p className="modal__highlight">イベントを“ちゃんと盛り上げ切る”方法は、この先にあります。</p>
           </div>
           <div className="modal__feature-grid">
             <div className="modal__feature">
               <span className="modal__feature-icon" aria-hidden="true">
-                🎯
+                🕑
               </span>
               <div>
-                <p className="modal__feature-title">好きな写真を図柄にして回せる</p>
-                <p className="modal__feature-text">推しの一枚で、ワクワク感をプラス。</p>
-              </div>
-            </div>
-            <div className="modal__feature">
-              <span className="modal__feature-icon" aria-hidden="true">
-                💥
-              </span>
-              <div>
-                <p className="modal__feature-title">誰に当たるかわからないドキドキが倍増</p>
-                <p className="modal__feature-text">仕掛けた人も、見ている人も、最後まで目が離せない。</p>
+                <p className="modal__feature-title">回数無制限・確率調整</p>
+                <p className="modal__feature-text">回数や確率を調整して、イベントの空気に合わせた抽選ができる。</p>
               </div>
             </div>
             <div className="modal__feature">
@@ -49,8 +40,8 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateUrl })
                 😂
               </span>
               <div>
-                <p className="modal__feature-title">当たった瞬間、全員が一斉に笑う</p>
-                <p className="modal__feature-text">盛り上がりがピークに。ゲームが一気に本番へ。</p>
+                <p className="modal__feature-title">図柄やリーチ演出を自由に選べる</p>
+                <p className="modal__feature-text">好きな写真を図柄にして、会場が一気に盛り上がる。</p>
               </div>
             </div>
           </div>
