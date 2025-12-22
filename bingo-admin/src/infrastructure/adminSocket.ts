@@ -101,6 +101,6 @@ export const sendRoundStart = (
   roomId: string,
   config: AdminSocketConfig
 ) => {
-  const payload = buildRoundStartMessage(10, roomId, config);
+  const payload = buildRoundStartMessage(winIndex, roomId, config);
   socket.send(JSON.stringify(payload));
 };

@@ -14,6 +14,8 @@ import DrawControls from "./components/DrawControls";
 import QrModal from "./components/QrModal";
 import ConnectionErrorModal from "./components/ConnectionErrorModal";
 import SendingModal from "./components/SendingModal";
+import FloatingActions from "./components/FloatingActions";
+import UpdateModal from "./components/UpdateModal";
 
 const App: React.FC = () => {
   // UI state management for the admin console
@@ -28,6 +30,7 @@ const App: React.FC = () => {
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const winIndex = DEFAULT_WIN_INDEX;
   const { drawCount, drawLimit, hasReachedLimit, incrementDrawCount } =
     useDrawCounter();
@@ -219,6 +222,14 @@ const App: React.FC = () => {
     setIsQrModalOpen(true);
   };
 
+  const handleUpdateModalOpen = () => {
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdateModalClose = () => {
+    setIsUpdateModalOpen(false);
+  };
+
   const handleCopyMemberLink = async () => {
     if (copyMessageTimer.current) {
       window.clearTimeout(copyMessageTimer.current);
@@ -289,18 +300,19 @@ const App: React.FC = () => {
         />
       )}
 
-      <div className="floating-actions" aria-live="polite">
-        <button
-          className="qr-open-button"
-          type="button"
-          onClick={handleQrModalOpen}
-          disabled={!isConnected || !memberUrl}
-        >
-          参加用QRコードを表示
-        </button>
-      </div>
+      <FloatingActions
+        onOpenQr={handleQrModalOpen}
+        onOpenUpdate={handleUpdateModalOpen}
+        isQrButtonDisabled={!isConnected || !memberUrl}
+      />
 
       <SendingModal isOpen={isSending} />
+
+      <UpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={handleUpdateModalClose}
+        updateUrl="https://coconala.com/services/3988880"
+      />
     </div>
   );
 };
