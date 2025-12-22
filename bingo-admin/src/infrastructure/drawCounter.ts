@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-const DRAW_LIMIT = 10;
+const DRAW_LIMIT = 5;
 
 type UseDrawCounterResult = {
   drawCount: number;

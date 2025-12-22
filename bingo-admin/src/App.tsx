@@ -126,7 +126,7 @@ const App: React.FC = () => {
       sendingCooldownTimer.current = window.setTimeout(() => {
         setIsSending(false);
         sendingCooldownTimer.current = null;
-      }, 15000);
+      }, 1500);
       sendRoundStart(socket, winIndex, roomId, {
         websocketSecret: runtimeConfig.websocketSecret,
         websocketUrl: runtimeConfig.websocketUrl,
