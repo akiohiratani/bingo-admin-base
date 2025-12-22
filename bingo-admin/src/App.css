@@ -349,8 +349,7 @@
 }
 
 .qr-open-button,
-.history-open-button,
-.update-open-button {
+.history-open-button {
   width: 100%;
   padding: 0.85rem 1rem;
   font-size: 1rem;
@@ -372,14 +371,8 @@
   box-shadow: 0 12px 26px rgba(168, 85, 247, 0.32);
 }
 
-.update-open-button {
-  background: linear-gradient(90deg, #22d3ee, #14b8a6);
-  box-shadow: 0 12px 26px rgba(20, 184, 166, 0.32);
-}
-
 .qr-open-button:hover:not(:disabled),
-.history-open-button:hover:not(:disabled),
-.update-open-button:hover:not(:disabled) {
+.history-open-button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
@@ -390,14 +383,8 @@
 .history-open-button:hover:not(:disabled) {
   box-shadow: 0 16px 32px rgba(236, 72, 153, 0.36);
 }
-
-.update-open-button:hover:not(:disabled) {
-  box-shadow: 0 16px 32px rgba(20, 184, 166, 0.36);
-}
-
 .qr-open-button:disabled,
-.history-open-button:disabled,
-.update-open-button:disabled {
+.history-open-button:disabled {
   background: linear-gradient(90deg, #cbd5e1, #e2e8f0);
   color: #64748b;
   cursor: not-allowed;
