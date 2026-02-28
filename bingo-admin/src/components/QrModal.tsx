@@ -28,12 +28,12 @@ const QrModal: React.FC<QrModalProps> = ({
     >
       <div className="modal qr-modal">
         <p className="modal__body">
-          このQRコードから参加者はビンゴゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
+          このQRコードから参加者はゲームに参加できます。お手持ちの端末で読み取ってブラウザでアクセスしてください。
         </p>
         <figure className="qr-modal__figure">
           <img
             src={memberQrCodeUrl}
-            alt="ビンゴ参加用QRコード"
+            alt="参加用QRコード"
             className="qr-modal__image"
           />
           <figcaption className="sr-only">リンク先: {memberUrl}</figcaption>

@@ -18,11 +18,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateUrl })
         <p className="modal__eyebrow">アップデートで解禁</p>
         <h2 className="modal__title">無料プレイはここまで。</h2>
         <div className="modal__body">
-          <p className="modal__lead">
-            このままでは、抽選を続けることはできません。
-          </p>
           <div className="modal__card">
-            <p className="modal__subtitle">でも――</p>
             <p className="modal__highlight">イベントを“ちゃんと盛り上げ切る”方法は、この先にあります。</p>
           </div>
           <div className="modal__feature-grid">

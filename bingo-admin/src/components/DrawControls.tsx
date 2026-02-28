@@ -4,16 +4,12 @@ export type DrawControlsProps = {
   onDraw: () => void;
   isDrawButtonDisabled: boolean;
   winIndex: number;
-  drawCount: number;
-  drawLimit: number;
 };
 
 const DrawControls: React.FC<DrawControlsProps> = ({
   onDraw,
   isDrawButtonDisabled,
   winIndex,
-  drawCount,
-  drawLimit,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -46,11 +42,6 @@ const DrawControls: React.FC<DrawControlsProps> = ({
       >
         抽選開始
       </button>
-
-      <div className="draw-counter" aria-live="polite">
-        今日の無料：あと{drawCount}/{drawLimit}回
-      </div>
-
       <label
         className="win-index-selector"
         onClick={handleTooltip}

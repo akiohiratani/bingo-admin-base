@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const DRAW_LIMIT = 5;
+const DRAW_LIMIT = 50;
 const RECOVERY_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const STORAGE_KEY = "drawCounterState";
 

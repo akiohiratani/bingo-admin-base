@@ -32,7 +32,7 @@ const App: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const winIndex = DEFAULT_WIN_INDEX;
-  const { drawCount, drawLimit, hasReachedLimit, incrementDrawCount } =
+  const { hasReachedLimit, incrementDrawCount } =
     useDrawCounter();
 
   const copyMessageTimer = useRef<number | null>(null);
@@ -266,8 +266,6 @@ const App: React.FC = () => {
           onDraw={handleDraw}
           isDrawButtonDisabled={isDrawButtonDisabled}
           winIndex={winIndex}
-          drawCount={drawCount}
-          drawLimit={drawLimit}
         />
       </div>
 
