@@ -1,4 +1,5 @@
 import React from "react";
+import ExternalLinkLabel from "./ExternalLinkLabel";
 
 export type FloatingActionsProps = {
   onOpenQr: () => void;
@@ -19,6 +20,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({
       >
         参加用QRコードを表示
       </button>
+      <ExternalLinkLabel />
     </div>
   );
 };
