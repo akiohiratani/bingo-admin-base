@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 
 import OutcomeLabelInputs from "./OutcomeLabelInputs";
 
+const OUTCOME_INPUT_COUNT = 5;
+
 export type DrawControlsProps = {
   onDraw: () => void;
   isDrawButtonDisabled: boolean;
@@ -14,6 +16,14 @@ const DrawControls: React.FC<DrawControlsProps> = ({
   winIndex,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [outcomeLabels, setOutcomeLabels] = useState<string[]>(
+    Array.from({ length: OUTCOME_INPUT_COUNT }, () => ""),
+  );
+  const [hasAttemptedDrawWithEmptyLabel, setHasAttemptedDrawWithEmptyLabel] = useState(false);
+
+  const hasEmptyOutcomeLabel = outcomeLabels.some((label) => !label.trim());
+  const isSystemDisabled = isDrawButtonDisabled;
+  const isDrawActionBlocked = isSystemDisabled || hasEmptyOutcomeLabel;
 
   useEffect(() => {
     if (!showTooltip) {
@@ -34,12 +44,26 @@ const DrawControls: React.FC<DrawControlsProps> = ({
     }
   };
 
+  const handleOutcomeLabelChange = (index: number, value: string) => {
+    setOutcomeLabels((currentLabels) => currentLabels.map((label, i) => (i === index ? value : label)));
+  };
+
+  const handleDrawClick = () => {
+    if (hasEmptyOutcomeLabel) {
+      setHasAttemptedDrawWithEmptyLabel(true);
+      return;
+    }
+
+    onDraw();
+  };
+
   return (
     <div className="draw-panel">
       <button
-        className="draw-button"
-        onClick={onDraw}
-        disabled={isDrawButtonDisabled}
+        className={`draw-button ${hasEmptyOutcomeLabel ? "draw-button--blocked" : ""}`.trim()}
+        onClick={handleDrawClick}
+        disabled={isSystemDisabled}
+        aria-disabled={isDrawActionBlocked}
         type="button"
       >
         抽選開始
@@ -62,7 +86,11 @@ const DrawControls: React.FC<DrawControlsProps> = ({
           </div>
         ) : null}
       </label>
-      <OutcomeLabelInputs />
+      <OutcomeLabelInputs
+        values={outcomeLabels}
+        onChange={handleOutcomeLabelChange}
+        showValidationMessage={hasAttemptedDrawWithEmptyLabel && hasEmptyOutcomeLabel}
+      />
     </div>
   );
 };
