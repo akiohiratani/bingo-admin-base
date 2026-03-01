@@ -66,6 +66,40 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
+.outcome-label-inputs {
+  width: min(620px, 94vw);
+  display: grid;
+  gap: 0.45rem;
+}
+
+.outcome-label-inputs__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #475569;
+  text-align: left;
+}
+
+.outcome-label-inputs__row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.outcome-label-inputs__field {
+  width: 100%;
+  padding: 0.5rem 0.45rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.86rem;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.outcome-label-inputs__field::placeholder {
+  color: #94a3b8;
+}
+
+
 .remaining-counter {
   font-size: clamp(1.05rem, 3vw, 1.2rem);
   font-weight: 700;
