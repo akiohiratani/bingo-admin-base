@@ -141,6 +141,17 @@
   color: #94a3b8;
 }
 
+.outcome-label-inputs__field--error {
+  border-color: #ef4444;
+}
+
+.outcome-label-inputs__error {
+  color: #dc2626;
+  font-size: clamp(0.48rem, 1.45vw, 0.7rem);
+  font-weight: 700;
+  text-align: left;
+}
+
 
 .remaining-counter {
   font-size: clamp(1.05rem, 3vw, 1.2rem);
@@ -179,6 +190,18 @@
   color: #64748b;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.draw-button--blocked {
+  background: linear-gradient(90deg, #cbd5e1, #cbd5e1);
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.draw-button--blocked:hover {
+  transform: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 4px 14px rgba(0, 0, 0, 0.12);
+  filter: none;
 }
 
 .modal-backdrop {
