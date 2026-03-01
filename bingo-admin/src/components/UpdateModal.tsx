@@ -19,7 +19,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, updateUrl })
         <h2 className="modal__title">無料プレイはここまで。</h2>
         <div className="modal__body">
           <div className="modal__card">
-            <p className="modal__highlight">イベントを“ちゃんと盛り上げ切る”方法は、この先にあります。</p>
+            <p className="modal__highlight">イベントを“もっと盛り上げ切る”方法は、この先にあります。</p>
           </div>
           <div className="modal__feature-grid">
             <div className="modal__feature">
