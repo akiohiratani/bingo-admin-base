@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import OutcomeLabelInputs from "./OutcomeLabelInputs";
 
 const OUTCOME_INPUT_COUNT = 5;
-const WIN_INDEX_OPTIONS = Array.from({ length: 100 }, (_, index) => index + 1);
+const WIN_INDEX_OPTIONS = Array.from({ length: 10 }, (_, index) => (index + 1) * 10);
 
 export type DrawControlsProps = {
   onDraw: () => void;
