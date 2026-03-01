@@ -40,7 +40,7 @@
   text-align: center;
 }
 
-.win-index-selector__value {
+.win-index-selector__input {
   display: block;
   width: 100%;
   padding: clamp(0.42rem, 1.2vh, 0.6rem) 0.65rem;
@@ -53,20 +53,6 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
-.win-index-selector__tooltip {
-  position: absolute;
-  inset: auto 0 -2.4rem 0;
-  margin: auto;
-  width: max-content;
-  max-width: 90%;
-  padding: 0.35rem 0.65rem;
-  border-radius: 6px;
-  background: rgba(15, 23, 42, 0.9);
-  color: #f8fafc;
-  font-size: 0.95rem;
-  text-align: center;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-}
 
 .outcome-label-inputs {
   width: min(760px, 96vw);
