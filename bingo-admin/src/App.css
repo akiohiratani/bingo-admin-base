@@ -85,6 +85,44 @@
   gap: 0.5rem;
 }
 
+.outcome-label-inputs__item {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.outcome-label-inputs__label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-align: center;
+  -webkit-text-stroke: 1px #000000;
+  paint-order: stroke fill;
+  text-shadow:
+    -1px -1px 0 #000000,
+    1px -1px 0 #000000,
+    -1px 1px 0 #000000,
+    1px 1px 0 #000000;
+}
+
+.outcome-label-inputs__label--1 {
+  color: #ef4444;
+}
+
+.outcome-label-inputs__label--2 {
+  color: #3b82f6;
+}
+
+.outcome-label-inputs__label--3 {
+  color: #facc15;
+}
+
+.outcome-label-inputs__label--4 {
+  color: #a855f7;
+}
+
+.outcome-label-inputs__label--5 {
+  color: #ffffff;
+}
+
 .outcome-label-inputs__field {
   width: 100%;
   padding: 0.5rem 0.45rem;
