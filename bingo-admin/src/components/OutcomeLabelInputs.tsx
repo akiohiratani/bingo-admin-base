@@ -16,7 +16,7 @@ const OutcomeLabelInputs: React.FC = () => {
         {inputConfigs.map(({ id, placeholder, colorClass }) => (
           <div key={id} className="outcome-label-inputs__item">
             <label className={`outcome-label-inputs__label ${colorClass}`} htmlFor={`outcome-label-input-${id}`}>
-              {id} 入力ボックス
+              {id} 
             </label>
             <input
               id={`outcome-label-input-${id}`}
