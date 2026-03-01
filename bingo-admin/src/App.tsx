@@ -31,7 +31,7 @@ const App: React.FC = () => {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const winIndex = DEFAULT_WIN_INDEX;
+  const [winIndex, setWinIndex] = useState(DEFAULT_WIN_INDEX);
   const { hasReachedLimit, incrementDrawCount } =
     useDrawCounter();
 
@@ -266,6 +266,7 @@ const App: React.FC = () => {
           onDraw={handleDraw}
           isDrawButtonDisabled={isDrawButtonDisabled}
           winIndex={winIndex}
+          onWinIndexChange={setWinIndex}
         />
       </div>
 
