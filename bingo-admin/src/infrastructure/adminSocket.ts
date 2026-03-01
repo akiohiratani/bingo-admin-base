@@ -15,7 +15,7 @@ export type RoundStartMessage = {
 };
 
 // The default value broadcast at the start of each round. Kept in the infrastructure layer.
-export const DEFAULT_WIN_INDEX = 50;
+export const DEFAULT_WIN_INDEX = 30;
 
 // Build message payload to start a new round.
 export const buildRoundStartMessage = (
