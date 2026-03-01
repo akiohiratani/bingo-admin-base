@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import OutcomeLabelInputs from "./OutcomeLabelInputs";
 
 const OUTCOME_INPUT_COUNT = 5;
+const WIN_INDEX_OPTIONS = Array.from({ length: 100 }, (_, index) => index + 1);
 
 export type DrawControlsProps = {
   onDraw: () => void;
@@ -30,14 +31,8 @@ const DrawControls: React.FC<DrawControlsProps> = ({
     setOutcomeLabels((currentLabels) => currentLabels.map((label, i) => (i === index ? value : label)));
   };
 
-  const handleWinIndexChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-    const parsedValue = Number(event.target.value);
-
-    if (Number.isNaN(parsedValue)) {
-      return;
-    }
-
-    onWinIndexChange(Math.min(100, Math.max(0, parsedValue)));
+  const handleWinIndexChange: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
+    onWinIndexChange(Number(event.target.value));
   };
 
   const handleDrawClick = () => {
@@ -60,19 +55,21 @@ const DrawControls: React.FC<DrawControlsProps> = ({
       >
         抽選開始
       </button>
-      <label className="win-index-selector" htmlFor="win-index-input">
+      <label className="win-index-selector" htmlFor="win-index-combobox">
         <span className="win-index-selector__label">大当たり確率 (%)</span>
-        <input
-          id="win-index-input"
+        <select
+          id="win-index-combobox"
           className="win-index-selector__input"
-          type="number"
-          min={0}
-          max={100}
-          step={1}
           value={winIndex}
           onChange={handleWinIndexChange}
-          aria-label="大当たり確率の入力"
-        />
+          aria-label="大当たり確率の選択"
+        >
+          {WIN_INDEX_OPTIONS.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
       </label>
       <OutcomeLabelInputs
         values={outcomeLabels}
