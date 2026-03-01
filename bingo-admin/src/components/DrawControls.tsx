@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import OutcomeLabelInputs from "./OutcomeLabelInputs";
+
 export type DrawControlsProps = {
   onDraw: () => void;
   isDrawButtonDisabled: boolean;
@@ -60,6 +62,7 @@ const DrawControls: React.FC<DrawControlsProps> = ({
           </div>
         ) : null}
       </label>
+      <OutcomeLabelInputs />
     </div>
   );
 };

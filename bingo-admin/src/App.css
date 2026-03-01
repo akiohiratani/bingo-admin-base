@@ -1,17 +1,19 @@
 .app {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f4f7ff;
-  padding: clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(0.4rem, 1.6vh, 1.2rem) clamp(0.45rem, 2vw, 1.6rem);
+  overflow: hidden;
 }
 
 .draw-panel {
+  width: min(780px, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: clamp(0.45rem, 1.2vh, 0.75rem);
 }
 
 .draw-counter {
@@ -26,13 +28,13 @@
 
 .win-index-selector {
   display: grid;
-  gap: 0.35rem;
-  width: min(320px, 90vw);
+  gap: clamp(0.2rem, 0.7vh, 0.35rem);
+  width: min(300px, 86vw);
   position: relative;
 }
 
 .win-index-selector__label {
-  font-size: 1rem;
+  font-size: clamp(0.86rem, 2.4vw, 1rem);
   font-weight: bold;
   color: #fd7e00;
   text-align: center;
@@ -41,8 +43,8 @@
 .win-index-selector__value {
   display: block;
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  font-size: 2.5rem;
+  padding: clamp(0.42rem, 1.2vh, 0.6rem) 0.65rem;
+  font-size: clamp(1.9rem, 6.8vw, 2.5rem);
   text-align: center;
   border-radius: 10px;
   border: 1px solid #cbd5e1;
@@ -66,6 +68,80 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
+.outcome-label-inputs {
+  width: min(760px, 96vw);
+  display: grid;
+  gap: clamp(0.25rem, 0.8vh, 0.45rem);
+}
+
+.outcome-label-inputs__title {
+  font-size: clamp(0.74rem, 2vw, 0.95rem);
+  font-weight: 700;
+  color: #475569;
+  text-align: left;
+}
+
+.outcome-label-inputs__row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.2rem, 0.8vw, 0.5rem);
+}
+
+.outcome-label-inputs__item {
+  min-width: 0;
+  display: grid;
+  gap: clamp(0.18rem, 0.6vh, 0.3rem);
+}
+
+.outcome-label-inputs__label {
+  font-size: clamp(0.5rem, 1.8vw, 0.8rem);
+  font-weight: 800;
+  text-align: center;
+  -webkit-text-stroke: 1px #000000;
+  paint-order: stroke fill;
+  text-shadow:
+    -1px -1px 0 #000000,
+    1px -1px 0 #000000,
+    -1px 1px 0 #000000,
+    1px 1px 0 #000000;
+}
+
+.outcome-label-inputs__label--1 {
+  color: #ef4444;
+}
+
+.outcome-label-inputs__label--2 {
+  color: #3b82f6;
+}
+
+.outcome-label-inputs__label--3 {
+  color: #facc15;
+}
+
+.outcome-label-inputs__label--4 {
+  color: #a855f7;
+}
+
+.outcome-label-inputs__label--5 {
+  color: #ffffff;
+}
+
+.outcome-label-inputs__field {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(0.28rem, 0.95vh, 0.5rem) clamp(0.16rem, 0.65vw, 0.45rem);
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: clamp(0.56rem, 1.7vw, 0.86rem);
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.outcome-label-inputs__field::placeholder {
+  color: #94a3b8;
+}
+
+
 .remaining-counter {
   font-size: clamp(1.05rem, 3vw, 1.2rem);
   font-weight: 700;
@@ -74,9 +150,9 @@
 }
 
 .draw-button {
-  width: min(320px, 90vw);
-  padding: clamp(1rem, 3vw, 1.2rem) clamp(1.8rem, 6vw, 2.4rem);
-  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  width: min(300px, 86vw);
+  padding: clamp(0.75rem, 2.2vh, 1.2rem) clamp(1.4rem, 5vw, 2.4rem);
+  font-size: clamp(1rem, 3.7vw, 1.6rem);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #0b1223;
@@ -692,5 +768,15 @@
     --history-card-size: clamp(104px, 30vw, 140px);
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-height: calc(var(--history-card-size) * 2.6 + 1.25rem);
+  }
+}
+
+@media (max-width: 420px) {
+  .outcome-label-inputs__label {
+    -webkit-text-stroke: 0.7px #000000;
+  }
+
+  .outcome-label-inputs__field {
+    border-radius: 6px;
   }
 }
