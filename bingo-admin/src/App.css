@@ -83,7 +83,9 @@
 
 .outcome-label-inputs__row {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 560px);
+  margin: 0 auto;
   gap: clamp(0.2rem, 0.8vw, 0.5rem);
 }
 
