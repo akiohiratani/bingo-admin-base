@@ -21,11 +21,7 @@ const DrawControls: React.FC<DrawControlsProps> = ({
   const [outcomeLabels, setOutcomeLabels] = useState<string[]>(
     Array.from({ length: OUTCOME_INPUT_COUNT }, () => ""),
   );
-  const [hasAttemptedDrawWithEmptyLabel, setHasAttemptedDrawWithEmptyLabel] = useState(false);
-
-  const hasEmptyOutcomeLabel = outcomeLabels.some((label) => !label.trim());
   const isSystemDisabled = isDrawButtonDisabled;
-  const isDrawActionBlocked = isSystemDisabled || hasEmptyOutcomeLabel;
 
   const handleOutcomeLabelChange = (index: number, value: string) => {
     setOutcomeLabels((currentLabels) => currentLabels.map((label, i) => (i === index ? value : label)));
@@ -35,22 +31,13 @@ const DrawControls: React.FC<DrawControlsProps> = ({
     onWinIndexChange(Number(event.target.value));
   };
 
-  const handleDrawClick = () => {
-    if (hasEmptyOutcomeLabel) {
-      setHasAttemptedDrawWithEmptyLabel(true);
-      return;
-    }
-
-    onDraw();
-  };
-
   return (
     <div className="draw-panel">
       <button
-        className={`draw-button ${hasEmptyOutcomeLabel ? "draw-button--blocked" : ""}`.trim()}
-        onClick={handleDrawClick}
+        className="draw-button"
+        onClick={onDraw}
         disabled={isSystemDisabled}
-        aria-disabled={isDrawActionBlocked}
+        aria-disabled={isSystemDisabled}
         type="button"
       >
         抽選開始
@@ -74,7 +61,6 @@ const DrawControls: React.FC<DrawControlsProps> = ({
       <OutcomeLabelInputs
         values={outcomeLabels}
         onChange={handleOutcomeLabelChange}
-        showValidationMessage={hasAttemptedDrawWithEmptyLabel && hasEmptyOutcomeLabel}
       />
     </div>
   );
