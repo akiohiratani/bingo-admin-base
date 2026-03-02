@@ -3,7 +3,6 @@ import React from "react";
 type OutcomeLabelInputsProps = {
   values: string[];
   onChange: (index: number, value: string) => void;
-  showValidationMessage: boolean;
 };
 
 const inputConfigs = [
@@ -17,15 +16,12 @@ const inputConfigs = [
 const OutcomeLabelInputs: React.FC<OutcomeLabelInputsProps> = ({
   values,
   onChange,
-  showValidationMessage,
 }) => {
   return (
     <section className="outcome-label-inputs" aria-label="結果ラベル設定">
       <span className="outcome-label-inputs__title">結果ラベル設定</span>
       <div className="outcome-label-inputs__row">
         {inputConfigs.map(({ id, placeholder, colorClass }, index) => {
-          const hasValidationError = showValidationMessage && !values[index]?.trim();
-
           return (
             <div key={id} className="outcome-label-inputs__item">
               <label className={`outcome-label-inputs__label ${colorClass}`} htmlFor={`outcome-label-input-${id}`}>
@@ -33,20 +29,13 @@ const OutcomeLabelInputs: React.FC<OutcomeLabelInputsProps> = ({
               </label>
               <input
                 id={`outcome-label-input-${id}`}
-                className={`outcome-label-inputs__field ${hasValidationError ? "outcome-label-inputs__field--error" : ""}`.trim()}
+                className="outcome-label-inputs__field"
                 type="text"
                 placeholder={placeholder}
                 aria-label={placeholder}
                 value={values[index] ?? ""}
                 onChange={(event) => onChange(index, event.target.value)}
-                aria-invalid={hasValidationError}
-                aria-describedby={hasValidationError ? `outcome-label-input-${id}-error` : undefined}
               />
-              {hasValidationError ? (
-                <span id={`outcome-label-input-${id}-error`} className="outcome-label-inputs__error" role="alert">
-                  入力してください
-                </span>
-              ) : null}
             </div>
           );
         })}
